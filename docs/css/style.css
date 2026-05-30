@@ -273,6 +273,126 @@ a:hover {
   color: var(--text-muted);
 }
 
+/* =============================================
+   App embed page  (.app-page)
+   ============================================= */
+
+/* Lock the full-page layout so only the iframe scrolls */
+.app-page {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make nav-logo a proper link on app pages */
+.app-page .nav-logo {
+  color: var(--white);
+  text-decoration: none;
+}
+
+/* Slim branded bar below the navbar */
+.app-bar {
+  flex: 0 0 auto;
+  background: var(--navy-mid);
+  border-bottom: 1px solid var(--border);
+}
+
+.app-bar-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0.55rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app-bar-back {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.app-bar-back:hover {
+  color: var(--gold);
+}
+
+.app-bar-title {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.app-bar-icon {
+  font-size: 1rem;
+}
+
+.app-bar-external {
+  font-size: 1rem;
+  color: var(--text-muted);
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.app-bar-external:hover {
+  color: var(--gold);
+}
+
+/* iframe wrapper fills remaining vertical space */
+.app-embed-wrap {
+  flex: 1 1 auto;
+  position: relative;
+  min-height: 0;         /* required for flex children to shrink */
+}
+
+.app-embed-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: var(--navy);
+}
+
+/* Loading overlay */
+.app-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--navy);
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+
+.app-loading-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.app-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--navy-light);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
 /* --- Responsive --- */
 @media (max-width: 640px) {
   .nav-links { display: none; }

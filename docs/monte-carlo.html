@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monte Carlo Retirement Simulator | Garrison Financial Group</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="app-page">
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">Garrison Financial Group</a>
+      <ul class="nav-links">
+        <li><a href="/#tools">Tools</a></li>
+        <li><a href="/#about">About</a></li>
+        <li><a href="mailto:your@email.com" class="btn-outline">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- App header bar -->
+  <div class="app-bar">
+    <div class="app-bar-inner">
+      <a href="/" class="app-bar-back">&#8592; All Tools</a>
+      <div class="app-bar-title">
+        <span class="app-bar-icon">&#x1F4CA;</span>
+        Monte Carlo Retirement Simulator
+      </div>
+      <a
+        href="https://gfg-monte-carlo.streamlit.app/"
+        class="app-bar-external"
+        target="_blank"
+        rel="noopener"
+        title="Open in full window"
+      >&#x2197;</a>
+    </div>
+  </div>
+
+  <!-- Embedded Streamlit app -->
+  <div class="app-embed-wrap">
+    <iframe
+      id="app-frame"
+      src="https://gfg-monte-carlo.streamlit.app/?embed=true"
+      title="Monte Carlo Retirement Simulator"
+      class="app-embed-frame"
+      allow="clipboard-write"
+      loading="lazy"
+    ></iframe>
+
+    <!-- Shown while the iframe is loading -->
+    <div class="app-loading" id="app-loading">
+      <div class="app-loading-inner">
+        <div class="app-spinner"></div>
+        <p>Loading simulator&hellip;</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    // Hide the loading overlay once the iframe fires its load event
+    const frame   = document.getElementById('app-frame');
+    const loading = document.getElementById('app-loading');
+    frame.addEventListener('load', () => {
+      loading.style.opacity = '0';
+      setTimeout(() => loading.style.display = 'none', 400);
+    });
+  </script>
+</body>
+</html>
