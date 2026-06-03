@@ -237,82 +237,242 @@ A fully vectorised, 5,000-path Monte Carlo retirement simulator with:
 
 ## App 2: Portfolio Optimizer ⏳ NEXT
 
+**Source:** `apps/portfolio_optimizer/app.py`
+**Deploy slug:** `gfg-portfolio-optimizer`
+**Embed page:** `docs/portfolio-optimizer.html`
+
 ### Purpose
-Mean-variance portfolio optimization with interactive efficient frontier. Shows optimal asset allocation and risk/return trade-offs for a custom basket of stocks.
+Mean-variance portfolio optimization (Markowitz) with an interactive efficient frontier, Sharpe ratio maximization, CVaR risk analysis, and optional rebalancing suggestions. Demonstrates quantitative finance depth to a practitioner audience.
 
-### Design decisions (to be finalized in next session)
+### Asset universe and data input
 
-#### Data
-- **yfinance** to pull historical adjusted close prices for user-specified tickers
-- Default lookback: 5 years of daily data, resampled to monthly returns
-- Handle missing data / delistings gracefully
+- **Free-form ticker entry** (comma-separated, e.g. `AAPL, MSFT, BND, GLD`) via `yfinance`
+- **Pre-built starter presets** offered as one-click buttons so the app is immediately usable:
+  - *Asset Class ETFs*: `SPY, AGG, GLD, VNQ, EFA, TLT`
+  - *US Sectors*: `XLK, XLF, XLE, XLV, XLI, XLY, XLP`
+  - *Factor ETFs*: `VTV, VUG, MTUM, QUAL, USMV`
+- Pull **adjusted close prices** only; compute log returns from those
+- **Lookback period**: 1yr / 3yr / 5yr / 10yr selector, **default 5yr**
+- Align all series to a common date range (inner join); warn if any ticker has < 1yr of overlapping history
+- Resample daily prices to **monthly returns** before optimization — more stable covariance, less noise
 
-#### Optimization
-- **Mean-variance (Markowitz)** — minimize portfolio variance for a target return, sweep across return targets to trace the efficient frontier
-- **Scipy `minimize`** with constraints: weights sum to 1, weights ≥ 0 (long-only)
-- Key portfolios to highlight: minimum variance, maximum Sharpe ratio, user's current allocation
-- Optionally: Global Minimum Variance (no expected-return input needed — more robust)
+### Return estimation
 
-#### Inputs (sidebar)
-- Ticker list (text input, comma-separated, e.g. `AAPL, MSFT, BND, GLD`)
-- Lookback period (1y / 3y / 5y / 10y)
-- Risk-free rate assumption (for Sharpe ratio, default 4.5% — current T-bill yield)
-- Optional: target return slider to show a specific point on the frontier
+- **Default: historical mean returns** (annualised from monthly log returns)
+- **GMV toggle**: "Minimize volatility only (ignore return estimates)" — skips expected returns entirely, maximises stability. Good alternative when historical means are noisy.
+- Note in the UI that historical return estimates are noisy over short lookbacks — surfacing this is part of the value
 
-#### Outputs
-1. **Efficient frontier chart** — scatter of frontier portfolios (risk vs. return), highlight min-var and max-Sharpe points; plot user's equal-weight allocation for comparison
-2. **Max-Sharpe portfolio weights** — bar chart of optimal allocation
-3. **Correlation heatmap** — asset correlation matrix
-4. **Historical cumulative returns** — line chart comparing each asset
-5. **Key stats table** — annualised return, vol, Sharpe for each asset and the optimal portfolio
+### Covariance estimation
 
-#### Implementation notes
-- Cache price data fetch with `@st.cache_data(ttl=3600)` — refresh once per hour
-- Show a warning if fewer than 2 valid tickers are entered
-- Plotly for all charts (consistent with Monte Carlo)
-- Use `scipy.optimize.minimize` with `SLSQP` method
-- For the frontier, generate ~100 points by sweeping the target return from min to max
+- **Ledoit-Wolf shrinkage** via `sklearn.covariance.LedoitWolf` — do NOT use raw sample covariance
+- Raw sample covariance is rank-deficient or ill-conditioned with many assets and limited history; Ledoit-Wolf produces a well-conditioned matrix that stabilises optimisation results
+- This is a deliberate demonstration of practitioner-grade methodology
+
+### Optimisation
+
+- **Solver:** `scipy.optimize.minimize` with `method='SLSQP'`
+- **Constraints:** weights sum to 1; weights ≥ 0 (long-only by default)
+- **Advanced options** (in expander):
+  - Allow short selling (weights ≥ −0.20, or unconstrained)
+  - Maximum single-position weight (e.g. 40% cap)
+- **Three key optimisations to run:**
+  1. Maximise Sharpe ratio (primary)
+  2. Minimise volatility (Global Minimum Variance)
+  3. Sweep target returns to trace the efficient frontier (~100 points)
+- Run max-Sharpe from **multiple random starting points** (≥ 10) and take the best result — the objective is non-convex and sensitive to initialisation
+
+### Efficient frontier construction
+
+- **Random portfolio scatter**: 5,000 random weight vectors, plotted as (annualised vol, annualised return), colour-coded by Sharpe ratio using a gold-to-white colorscale
+- **Parametric frontier curve**: traced by solving min-variance at each target return level — overlaid as a clean line on top of the scatter
+- **Mark explicitly on the chart:**
+  - 🟡 Max Sharpe portfolio
+  - ⚪ Min Volatility portfolio
+  - ◇ Equal-weight portfolio
+  - ★ Current holdings (if user entered weights — see Rebalancing below)
+
+### Risk measures
+
+- **Primary axis:** annualised volatility (standard deviation of returns)
+- **CVaR (Expected Shortfall)** at 95% confidence — historical simulation:
+  - Sort monthly return series, average the worst 5% of months
+  - Annualise: `CVaR_annual ≈ CVaR_monthly × √12`
+  - Show for each individual asset and for the max-Sharpe portfolio vs. equal-weight
+- **Maximum drawdown** from historical price series — most viscerally understandable risk metric for non-quants; show in the summary table
+
+### Rebalancing (optional)
+
+- Optional section: "Compare to current holdings"
+- User inputs current weights for each ticker (number inputs that sum to 100%)
+- Show a **delta table**: Current Weight | Optimal Weight | Δ
+- No transaction cost modelling in v1
+
+### Sidebar inputs
+
+**Main (always visible):**
+- Ticker input (text) + preset buttons
+- Lookback period selector
+- Risk-free rate (%, default 4.5%)
+- GMV toggle
+
+**Advanced expander:**
+- Allow short selling (toggle)
+- Max position size (slider, default 100%)
+- Rebalancing section (optional current weights)
+
+### Outputs / layout
+
+Use `st.tabs` for the main content area:
+
+1. **Efficient Frontier** — scatter + parametric curve + marked portfolios
+2. **Optimal Weights** — horizontal bar chart for max-Sharpe portfolio; weights table
+3. **Risk Analysis** — CVaR comparison table (each asset + optimised vs. equal-weight); max drawdown; vol comparison
+4. **Correlations** — heatmap of asset return correlations (Plotly `go.Heatmap`)
+5. **Historical Returns** — cumulative return line chart for all assets over the selected lookback
+
+KPI metric cards above the tabs: Optimised Sharpe | Optimised Vol | Optimised Return | vs. Equal-Weight Sharpe
+
+### Implementation notes
+
+```python
+# Key imports
+import yfinance as yf
+from sklearn.covariance import LedoitWolf
+from scipy.optimize import minimize
+
+# Data fetch — cache per ticker list + lookback
+@st.cache_data(ttl=3600)
+def fetch_prices(tickers: tuple[str, ...], years: int) -> pd.DataFrame: ...
+
+# Covariance
+lw = LedoitWolf().fit(monthly_returns)
+cov_matrix = lw.covariance_   # annualise: × 12
+
+# Sharpe maximisation — run from N random starts, take best
+best = None
+for _ in range(15):
+    w0 = np.random.dirichlet(np.ones(n_assets))
+    res = minimize(neg_sharpe, w0, constraints=..., bounds=...)
+    if best is None or res.fun < best.fun:
+        best = res
+```
+
+- If a ticker fails to fetch (delisted, typo), skip it and show a warning — don't crash
+- Validate that the covariance matrix is positive-definite before optimising; fall back to diagonal if not
+- All charts use the GFG navy/gold palette (same pattern as Monte Carlo app)
+- `requirements.txt`: add `scikit-learn>=1.4.0` and `yfinance>=0.2.40`
 
 ---
 
 ## App 3: Macro Dashboard ⏳ AFTER PORTFOLIO OPTIMIZER
 
-**Requires:** FRED API key (free at fred.stlouisfed.org/docs/api/api_key.html)
+**Requires:** FRED API key — free at [fred.stlouisfed.org/docs/api/api_key.html](https://fred.stlouisfed.org/docs/api/api_key.html)
+**Source:** `apps/macro_dashboard/app.py`
+**Deploy slug:** `gfg-macro-dashboard`
+**Embed page:** `docs/macro-dashboard.html`
 
 ### Purpose
-Live macroeconomic dashboard pulling key indicators from the FRED API. Shows yield curve, inflation, unemployment, and M2 — with a simple recession probability signal.
+Live US macroeconomic dashboard pulling key indicators from the FRED API. Tracks leading and coincident indicators — yield curve, unemployment, inflation, M2 — with a three-signal recession composite. Designed to be genuinely useful to a financial planner as a quick macro read.
 
-### Design decisions (to be finalized)
+### FRED series to pull
 
-#### Data (FRED series IDs)
-| Series | FRED ID | Notes |
-|--------|---------|-------|
-| 10Y Treasury yield | `GS10` | |
-| 2Y Treasury yield | `GS2` | |
-| Yield curve spread (10Y−2Y) | Computed | Inversion = recession signal |
-| CPI YoY | `CPIAUCSL` | Compute % change |
-| Core PCE YoY | `PCEPILFE` | Fed's preferred inflation measure |
-| Unemployment rate | `UNRATE` | |
-| M2 money supply | `M2SL` | |
-| Fed Funds Rate | `FEDFUNDS` | |
-| Real GDP growth | `A191RL1Q225SBEA` | Quarterly |
+**Core (always fetched):**
 
-#### Inputs
-- Date range selector (default: last 5 years)
-- Recession shading toggle (NBER recessions via `USREC`)
+| Series ID | Description | Display |
+|-----------|-------------|---------|
+| `T10Y2Y` | 10yr–2yr Treasury yield spread | Level; inversion < 0 = signal |
+| `UNRATE` | Unemployment rate | Level |
+| `CPIAUCSL` | CPI All Items | YoY % change |
+| `SAHMREALTIME` | Sahm Rule real-time indicator | Level; ≥ 0.5 = signal |
+| `USREC` | NBER recession indicator | Used only for chart shading — not displayed standalone |
 
-#### Outputs
-1. **Yield curve chart** — 10Y−2Y spread over time; shade negative regions red
-2. **Inflation chart** — CPI and Core PCE on same axis
-3. **Unemployment chart** — rate over time with recession shading
-4. **Fed Funds vs. 10Y** — monetary policy context
-5. **Recession probability indicator** — simple logistic model on yield curve inversion + unemployment change (or just show the inversion as the signal)
+**Secondary (fetched, shown by default, toggleable):**
 
-#### FRED API key handling
-- Store as Streamlit secret: `FRED_API_KEY`
-- In `app.py`: `fred_key = st.secrets["FRED_API_KEY"]`
-- Add to Streamlit Cloud: Settings → Secrets → `FRED_API_KEY = "your_key"`
-- Cache FRED calls with `@st.cache_data(ttl=3600)`
+| Series ID | Description | Display |
+|-----------|-------------|---------|
+| `CPILFESL` | Core CPI (ex food & energy) | YoY % change — paired with headline CPI |
+| `M2SL` | M2 money supply | YoY % change |
+| `PAYEMS` | Nonfarm payrolls | MoM change (thousands) |
+| `UMCSENT` | UMich consumer sentiment | Level |
+
+**Out of scope for v1:** GDP (quarterly, too infrequent), housing starts, industrial production.
+
+### Recession signal composite
+
+The headline feature — displayed prominently at the top of the Overview tab as a "signal panel."
+
+Three signals, each shown as a coloured badge (green / amber / red) with current value and threshold:
+
+1. **Yield Curve** — triggered when `T10Y2Y < 0` (current reading)
+2. **Sahm Rule** — triggered when `SAHMREALTIME >= 0.5`
+3. **Consumer Sentiment Momentum** — triggered when `UMCSENT` is more than 1 standard deviation below its own 12-month rolling mean
+
+**Composite status** (large badge at top):
+- 0 of 3 triggered → 🟢 **Low**
+- 1 of 3 triggered → 🟡 **Elevated**
+- 2–3 of 3 triggered → 🔴 **High**
+
+Include a brief disclosure under the panel: yield curve has a 6–24 month lead time; Sahm Rule is nearly coincident; these signals are indicators, not forecasts.
+
+### Dashboard layout
+
+Use `st.tabs`:
+
+1. **Overview** — signal panel + KPI metric cards for all key series (current value + delta vs. 1 year ago)
+2. **Yield Curve** — T10Y2Y time series with recession shading; horizontal zero line; current value callout
+3. **Labor Market** — unemployment rate + Sahm Rule indicator on dual axes; recession shading; payrolls MoM bar chart below
+4. **Inflation** — headline CPI YoY + Core CPI YoY on same chart; reference line at 2% (Fed target)
+5. **Money & Sentiment** — M2 YoY % change; consumer sentiment index
+
+### Data handling
+
+- **Fetch each series in its own `@st.cache_data(ttl=3600)` function** — individual failure doesn't break the rest of the dashboard
+- Always fetch **full available history** from FRED; apply the lookback filter at display time (so changing the lookback doesn't trigger a new API call)
+- **Resample all series to monthly** (`resample('ME').last()`) before display — daily series like `T10Y2Y` get their month-end observation
+- **YoY % change**: `series.pct_change(12) * 100` after resampling to monthly — never display raw CPI or M2 levels
+- **Validate each series** before charting: check it's non-empty and that the most recent observation is within the last 90 days; if stale, show a warning rather than a silent bad chart
+
+### Recession shading (applied to all time-series charts)
+
+```python
+# Add NBER recession shading to any Plotly figure
+def add_recession_shading(fig, usrec: pd.Series, date_range):
+    recessions = usrec[usrec == 1]
+    # Find contiguous recession periods and add vrect for each
+    ...
+```
+
+### Lookback selector
+
+Sidebar: 2yr / 5yr / 10yr / Max, **default 10yr** — enough history to show at least one full business cycle including the 2020 recession.
+
+### API key handling
+
+```python
+# In app.py
+import streamlit as st
+from fredapi import Fred
+
+try:
+    fred = Fred(api_key=st.secrets["FRED_API_KEY"])
+except Exception:
+    st.error(
+        "FRED API key not configured. "
+        "Add `FRED_API_KEY = 'your_key'` to `.streamlit/secrets.toml` locally, "
+        "or to Streamlit Cloud → Settings → Secrets."
+    )
+    st.stop()
+```
+
+Graceful failure — show a clear setup message rather than a traceback.
+
+### Implementation notes
+
+- `requirements.txt`: `fredapi>=0.5.2` (already in stub)
+- All charts use GFG navy/gold palette + Plotly
+- The `USREC` series lags by ~1–2 months (NBER dating is retrospective) — note this in the UI
+- `T10Y2Y` is available on FRED as a pre-computed series (no need to compute from `GS10`/`GS2`)
+- For the Sahm Rule, `SAHMREALTIME` is the real-time version (revised less frequently) — preferred over computing from scratch
 
 ---
 
