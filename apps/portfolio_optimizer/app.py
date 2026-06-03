@@ -431,7 +431,7 @@ with tab_ef:
                 thickness  = 12,
                 len        = 0.55,
                 tickfont   = dict(size=10),
-                titlefont  = dict(size=11),
+                title_font = dict(size=11),
             ),
         ),
         name         = "Random portfolios",
