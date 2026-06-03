@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Macro Dashboard | Garrison Financial Group</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #app-frame {
+      display: block;
+      width: 100%;
+      border: none;
+      background: #0d1b2a;
+    }
+
+    #app-loading {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0d1b2a;
+      transition: opacity 0.4s;
+      z-index: 200;
+      pointer-events: none;
+    }
+
+    #app-loading.hidden { opacity: 0; }
+
+    .app-loading-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      color: #8a9bb0;
+      font-size: 0.9rem;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .app-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid #243b55;
+      border-top-color: #c9a84c;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navigation ───────────────────────────────────────────── -->
+  <nav class="navbar" id="hdr-nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo" style="text-decoration:none;color:inherit;">
+        Garrison Financial Group
+      </a>
+      <ul class="nav-links">
+        <li><a href="/#tools">Tools</a></li>
+        <li><a href="/#about">About</a></li>
+        <li><a href="mailto:your@email.com" class="btn-outline">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ── App bar (breadcrumb + escape hatch) ──────────────────── -->
+  <div class="app-bar" id="hdr-bar">
+    <div class="app-bar-inner">
+      <a href="/" class="app-bar-back">&#8592; All Tools</a>
+      <div class="app-bar-title">
+        <span class="app-bar-icon">&#x1F30E;</span>
+        Macro Dashboard
+      </div>
+      <a href="https://gfg-macro-dashboard.streamlit.app/"
+         class="app-bar-external"
+         target="_blank"
+         rel="noopener"
+         title="Open in its own tab">&#x2197;</a>
+    </div>
+  </div>
+
+  <!-- ── Embedded app ─────────────────────────────────────────── -->
+  <iframe
+    id="app-frame"
+    src="https://gfg-macro-dashboard.streamlit.app/?embed=true"
+    title="Macro Dashboard"
+    allow="clipboard-write"
+  ></iframe>
+
+  <!-- ── Loading overlay ──────────────────────────────────────── -->
+  <div id="app-loading">
+    <div class="app-loading-inner">
+      <div class="app-spinner"></div>
+      <p>Loading dashboard&hellip;</p>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    (function () {
+      var nav    = document.getElementById('hdr-nav');
+      var bar    = document.getElementById('hdr-bar');
+      var frame  = document.getElementById('app-frame');
+      var loader = document.getElementById('app-loading');
+
+      function fitFrame() {
+        var used = nav.offsetHeight + bar.offsetHeight;
+        frame.style.height = (window.innerHeight - used) + 'px';
+      }
+
+      fitFrame();
+      window.addEventListener('resize', fitFrame);
+
+      frame.addEventListener('load', function () {
+        loader.classList.add('hidden');
+        setTimeout(function () { loader.style.display = 'none'; }, 450);
+      });
+    }());
+  </script>
+</body>
+</html>
