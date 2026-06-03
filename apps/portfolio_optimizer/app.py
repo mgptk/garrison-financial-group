@@ -1,50 +1,737 @@
 """
 Portfolio Optimizer
---------------------
-Garrison Financial Group
+Garrison Financial Group — gfg.finance
 
-Mean-variance optimization (Markowitz) with efficient frontier visualization,
-Sharpe ratio maximization, and CVaR extension.
+Markowitz mean-variance optimisation with Ledoit-Wolf shrinkage covariance,
+efficient frontier, CVaR risk analysis, and historical performance comparison.
 """
+from __future__ import annotations
 
+import warnings
+
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
+import yfinance as yf
+from scipy.optimize import minimize
+from sklearn.covariance import LedoitWolf
 
+warnings.filterwarnings("ignore")
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Page config  ← must be first Streamlit call
+# ─────────────────────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Portfolio Optimizer | Garrison Financial Group",
-    page_icon="📈",
+    page_title="Portfolio Optimizer | GFG",
+    page_icon="📊",
     layout="wide",
+    initial_sidebar_state="expanded",
 )
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Brand palette & CSS
+# ─────────────────────────────────────────────────────────────────────────────
+NAVY       = "#0d1b2a"
+NAVY_MID   = "#1b2e45"
+NAVY_LIGHT = "#243b55"
+GOLD       = "#c9a84c"
+GOLD_LIGHT = "#e0c068"
+AMBER      = "#ff9800"
+GREEN      = "#4caf50"
+RED        = "#f44336"
+
+st.markdown(
+    f"""
+    <style>
+    [data-testid="stAppViewContainer"] {{background-color:{NAVY}; color:#e8e8e8;}}
+    [data-testid="stHeader"]           {{background-color:{NAVY};}}
+    [data-testid="stSidebar"]          {{background-color:{NAVY_MID};}}
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {{color:#ccc;}}
+    h1 {{color:{GOLD}; font-family:'Georgia',serif; letter-spacing:0.02em;}}
+    h2, h3, h4 {{color:{GOLD_LIGHT};}}
+    [data-testid="metric-container"] {{
+        background:{NAVY_MID}; border-radius:8px; padding:0.8rem 1rem;
+    }}
+    [data-testid="stMetricValue"] {{color:{GOLD_LIGHT};}}
+    [data-testid="stMetricLabel"] {{color:#aaa;}}
+    hr {{border-color:{NAVY_LIGHT};}}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Constants
+# ─────────────────────────────────────────────────────────────────────────────
+PRESETS: dict[str, str] = {
+    "Asset Classes": "SPY, AGG, GLD, VNQ, EFA, TLT",
+    "US Sectors":    "XLK, XLF, XLE, XLV, XLI, XLY, XLP",
+    "Factor ETFs":   "VTV, VUG, MTUM, QUAL, USMV",
+}
+LOOKBACK_MAP = {"1 yr": 1, "3 yr": 3, "5 yr": 5, "10 yr": 10}
+N_RANDOM     = 3_000   # random portfolios for scatter
+N_FRONTIER   = 80      # points on parametric efficient frontier
+N_STARTS     = 20      # optimiser random restarts for Sharpe maximisation
+
+# Shared Plotly layout for all charts
+_CHART_BASE = dict(
+    paper_bgcolor = NAVY,
+    plot_bgcolor  = NAVY_MID,
+    font          = dict(color="#e0e0e0", size=12),
+    margin        = dict(l=60, r=30, t=55, b=50),
+    xaxis         = dict(gridcolor=NAVY_LIGHT, zerolinecolor=NAVY_LIGHT),
+    yaxis         = dict(gridcolor=NAVY_LIGHT, zerolinecolor=NAVY_LIGHT),
+)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Data layer
+# ─────────────────────────────────────────────────────────────────────────────
+
+@st.cache_data(ttl=3_600, show_spinner=False)
+def fetch_prices(tickers: tuple[str, ...], years: int) -> pd.DataFrame:
+    """
+    Download adjusted close prices via yfinance.
+    Returns a tz-naive daily DataFrame (inner join).
+    Tickers with < 60 daily observations are dropped silently;
+    the caller detects failures by comparing returned columns to input list.
+    """
+    end   = pd.Timestamp.today().normalize()
+    start = end - pd.DateOffset(years=years)
+
+    series: dict[str, pd.Series] = {}
+    for t in tickers:
+        try:
+            raw = yf.Ticker(t).history(start=start, end=end, auto_adjust=True)
+            if "Close" not in raw.columns or len(raw) < 60:
+                continue
+            s = raw["Close"].copy()
+            if s.index.tz is not None:
+                s.index = s.index.tz_convert(None)
+            series[t] = s
+        except Exception:
+            pass
+
+    if not series:
+        return pd.DataFrame()
+    return pd.DataFrame(series).dropna()
+
+
+def monthly_log_returns(prices: pd.DataFrame) -> pd.DataFrame:
+    """Month-end resample → log returns, dropping the first NaN row."""
+    mp = prices.resample("ME").last()
+    return np.log(mp / mp.shift(1)).dropna()
+
+
+def lw_cov_annual(ret: pd.DataFrame) -> np.ndarray:
+    """Ledoit-Wolf shrinkage covariance (monthly input) → annualised (×12)."""
+    return LedoitWolf().fit(ret.values).covariance_ * 12
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Portfolio mathematics  (all quantities annualised)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def port_stats(
+    w: np.ndarray,
+    mu: np.ndarray,   # annualised expected returns
+    cov: np.ndarray,  # annualised covariance matrix
+    rf: float,        # annualised risk-free rate
+) -> tuple[float, float, float]:
+    """Return (ann_return, ann_vol, sharpe)."""
+    r = float(w @ mu)
+    v = float(np.sqrt(w @ cov @ w))
+    s = (r - rf) / v if v > 1e-12 else 0.0
+    return r, v, s
+
+
+def _constraints_bounds(n: int, allow_short: bool, max_pos: float):
+    constraints = [{"type": "eq", "fun": lambda w: w.sum() - 1}]
+    lo = -0.20 if allow_short else 0.0
+    bounds = [(lo, max_pos)] * n
+    return constraints, bounds
+
+
+def opt_max_sharpe(
+    mu: np.ndarray, cov: np.ndarray, rf: float,
+    allow_short: bool, max_pos: float,
+) -> np.ndarray:
+    """Maximise Sharpe ratio from N_STARTS random initialisations."""
+    n = len(mu)
+    constraints, bounds = _constraints_bounds(n, allow_short, max_pos)
+    neg_sharpe = lambda w: -(port_stats(w, mu, cov, rf)[2])   # noqa: E731
+
+    rng  = np.random.default_rng(42)
+    best = None
+    for _ in range(N_STARTS):
+        w0  = rng.dirichlet(np.ones(n))
+        res = minimize(neg_sharpe, w0, method="SLSQP",
+                       constraints=constraints, bounds=bounds,
+                       options={"ftol": 1e-9, "maxiter": 1_000})
+        if res.success and (best is None or res.fun < best.fun):
+            best = res
+    return best.x if best is not None else np.ones(n) / n
+
+
+def opt_min_vol(
+    cov: np.ndarray, allow_short: bool, max_pos: float,
+) -> np.ndarray:
+    """Global Minimum Variance portfolio."""
+    n = cov.shape[0]
+    constraints, bounds = _constraints_bounds(n, allow_short, max_pos)
+    res = minimize(
+        lambda w: float(np.sqrt(w @ cov @ w)),
+        np.ones(n) / n, method="SLSQP",
+        constraints=constraints, bounds=bounds,
+        options={"ftol": 1e-12, "maxiter": 1_000},
+    )
+    return res.x if res.success else np.ones(n) / n
+
+
+def build_frontier(
+    mu: np.ndarray, cov: np.ndarray, rf: float,
+    allow_short: bool, max_pos: float,
+) -> pd.DataFrame:
+    """Parametric efficient frontier — min vol at each target return level."""
+    n = len(mu)
+    constraints_base, bounds = _constraints_bounds(n, allow_short, max_pos)
+    gmv_w  = opt_min_vol(cov, allow_short, max_pos)
+    min_r  = float(gmv_w @ mu)
+    max_r  = float(np.max(mu))
+
+    rows = []
+    for target in np.linspace(min_r, max_r, N_FRONTIER):
+        constraints = constraints_base + [
+            {"type": "ineq", "fun": lambda w, t=target: (w @ mu) - t}
+        ]
+        res = minimize(
+            lambda w: float(np.sqrt(w @ cov @ w)),
+            gmv_w, method="SLSQP",
+            constraints=constraints, bounds=bounds,
+            options={"ftol": 1e-9, "maxiter": 500},
+        )
+        if res.success:
+            r, v, s = port_stats(res.x, mu, cov, rf)
+            rows.append({"return": r, "vol": v, "sharpe": s})
+    return pd.DataFrame(rows)
+
+
+def rand_portfolios(
+    mu: np.ndarray, cov: np.ndarray, rf: float,
+) -> pd.DataFrame:
+    """N_RANDOM random long-only weight vectors with their stats."""
+    rng = np.random.default_rng(0)
+    W   = rng.dirichlet(np.ones(len(mu)), N_RANDOM)
+    ret = W @ mu
+    vol = np.sqrt(np.einsum("ni,ij,nj->n", W, cov, W))
+    sr  = np.where(vol > 1e-12, (ret - rf) / vol, np.nan)
+    return pd.DataFrame({"return": ret, "vol": vol, "sharpe": sr})
+
+
+def cvar_monthly(ret: pd.DataFrame, w: np.ndarray, alpha: float = 0.05) -> float:
+    """Historical 1-month CVaR at (1-alpha) confidence — reported as positive loss."""
+    port_r  = ret.values @ w
+    cutoff  = np.quantile(port_r, alpha)
+    tail    = port_r[port_r <= cutoff]
+    return float(-tail.mean()) if len(tail) else 0.0
+
+
+def max_drawdown(ret: pd.DataFrame, w: np.ndarray) -> float:
+    """Max peak-to-trough drawdown of a weighted portfolio (negative value)."""
+    port_r  = ret.values @ w
+    cumval  = np.exp(np.cumsum(port_r))
+    cummax  = np.maximum.accumulate(cumval)
+    return float(((cumval - cummax) / cummax).min())
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Sidebar
+# ─────────────────────────────────────────────────────────────────────────────
+with st.sidebar:
+    st.markdown("### 🏛 Garrison Financial Group")
+    st.caption("Portfolio Optimizer")
+    st.divider()
+
+    # Preset buttons
+    st.caption("Quick presets")
+    if "tickers_text" not in st.session_state:
+        st.session_state["tickers_text"] = PRESETS["Asset Classes"]
+
+    cols = st.columns(3)
+    for col, (label, val) in zip(cols, PRESETS.items()):
+        with col:
+            if st.button(label, use_container_width=True, key=f"preset_{label}"):
+                st.session_state["tickers_text"] = val
+                st.rerun()
+
+    tickers_raw = st.text_area(
+        "Tickers (comma-separated)",
+        value=st.session_state["tickers_text"],
+        height=90,
+    )
+    st.session_state["tickers_text"] = tickers_raw
+
+    st.subheader("Settings")
+    lookback_label = st.selectbox("Lookback period", list(LOOKBACK_MAP.keys()), index=2)
+    years          = LOOKBACK_MAP[lookback_label]
+
+    rf_pct = st.number_input("Risk-free rate (%/yr)", 0.0, 15.0, 4.5, 0.1, format="%.1f")
+    rf     = rf_pct / 100.0
+
+    gmv_mode = st.toggle(
+        "GMV mode — minimise volatility only",
+        value=False,
+        help="Ignores expected return estimates. Optimal portfolio = Global Minimum Variance.",
+    )
+
+    with st.expander("⚙️ Advanced"):
+        allow_short = st.toggle("Allow short selling (max −20% per asset)", value=False)
+        max_pos_pct = st.slider("Max single-position weight", 10, 100, 100, 5, format="%d%%")
+        max_pos     = max_pos_pct / 100.0
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Parse & validate tickers
+# ─────────────────────────────────────────────────────────────────────────────
+tickers_input: list[str] = list(dict.fromkeys(
+    t.strip().upper()
+    for t in tickers_raw.replace(",", " ").split()
+    if t.strip()
+))
+
+if len(tickers_input) < 2:
+    st.title("Portfolio Optimizer")
+    st.warning("⚠️ Enter at least two tickers in the sidebar to begin.")
+    st.stop()
+
+# Guard: max_pos must be feasible given number of tickers
+min_feasible = 1.0 / len(tickers_input)
+if max_pos < min_feasible - 0.01:
+    max_pos = min_feasible
+    st.sidebar.warning(f"Max position raised to {min_feasible*100:.0f}% to remain feasible.")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Fetch prices
+# ─────────────────────────────────────────────────────────────────────────────
+with st.spinner(f"Fetching {lookback_label} price history for {len(tickers_input)} tickers…"):
+    prices = fetch_prices(tuple(tickers_input), years)
+
+if prices.empty:
+    st.error("No valid price data returned. Check your tickers and try again.")
+    st.stop()
+
+valid  = list(prices.columns)
+failed = [t for t in tickers_input if t not in valid]
+if failed:
+    st.warning(f"Could not fetch data for: **{', '.join(failed)}**. Continuing with remaining tickers.")
+if len(valid) < 2:
+    st.error("Need at least 2 valid tickers to optimise.")
+    st.stop()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Compute returns & covariance
+# ─────────────────────────────────────────────────────────────────────────────
+ret     = monthly_log_returns(prices)          # (T, n) monthly log returns
+n       = len(valid)
+mu      = ret.mean().values * 12               # annualised expected returns
+cov     = lw_cov_annual(ret)                   # annualised LW covariance
+
+if len(ret) < 24:
+    st.warning(
+        f"Only **{len(ret)} months** of common history. "
+        "Return estimates are noisy — consider a longer lookback or fewer assets."
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Optimise
+# ─────────────────────────────────────────────────────────────────────────────
+with st.spinner("Running optimisation…"):
+    gmv_w   = opt_min_vol(cov, allow_short, max_pos)
+    opt_w   = gmv_w if gmv_mode else opt_max_sharpe(mu, cov, rf, allow_short, max_pos)
+    eq_w    = np.ones(n) / n
+
+    opt_r, opt_v, opt_s = port_stats(opt_w,  mu, cov, rf)
+    gmv_r, gmv_v, gmv_s = port_stats(gmv_w,  mu, cov, rf)
+    eq_r,  eq_v,  eq_s  = port_stats(eq_w,   mu, cov, rf)
+
+    frontier = build_frontier(mu, cov, rf, allow_short, max_pos)
+    scatter  = rand_portfolios(mu, cov, rf)
+
+    opt_cvar = cvar_monthly(ret, opt_w)
+    gmv_cvar = cvar_monthly(ret, gmv_w)
+    eq_cvar  = cvar_monthly(ret, eq_w)
+
+    opt_mdd = max_drawdown(ret, opt_w)
+    eq_mdd  = max_drawdown(ret, eq_w)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Helpers
+# ─────────────────────────────────────────────────────────────────────────────
+P = lambda v: f"{v*100:.1f}%"     # proportion → "14.3%"   noqa: E731
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Page header
+# ─────────────────────────────────────────────────────────────────────────────
+opt_label = "GMV Portfolio" if gmv_mode else "Max-Sharpe Portfolio"
+
 st.title("Portfolio Optimizer")
-st.caption("Garrison Financial Group")
+st.caption(
+    f"*{', '.join(valid)} · {lookback_label} · "
+    f"{'GMV mode' if gmv_mode else 'Max-Sharpe mode'} · "
+    f"Ledoit-Wolf covariance · {'Long-short' if allow_short else 'Long-only'}*"
+)
 
-st.info("This app is under development. Check back soon.", icon="🚧")
+# ─────────────────────────────────────────────────────────────────────────────
+# KPI cards
+# ─────────────────────────────────────────────────────────────────────────────
+c1, c2, c3, c4 = st.columns(4)
+c1.metric(f"{opt_label} — Sharpe",      f"{opt_s:.2f}",  f"{opt_s-eq_s:+.2f} vs EW")
+c2.metric(f"{opt_label} — Return",      P(opt_r),        f"{(opt_r-eq_r)*100:+.1f}pp vs EW")
+c3.metric(f"{opt_label} — Volatility",  P(opt_v),        f"{(opt_v-eq_v)*100:+.1f}pp vs EW")
+c4.metric("Equal-Weight Sharpe",        f"{eq_s:.2f}")
 
-# ------------------------------------------------------------
-# TODO: Build out the following sections
-# ------------------------------------------------------------
-# 1. Sidebar: user inputs
-#    - Ticker input (comma-separated, e.g. AAPL, MSFT, BND)
-#    - Lookback period (1y, 3y, 5y)
-#    - Risk-free rate (default 5.0%)
-#    - Number of random portfolios for frontier (default 5000)
-#
-# 2. Data fetch
-#    - Pull historical prices via yfinance
-#    - Compute log returns, mean returns, covariance matrix
-#
-# 3. Optimization
-#    - Random portfolio simulation for frontier scatter
-#    - scipy.optimize: maximize Sharpe ratio (minimize negative Sharpe)
-#    - scipy.optimize: minimize volatility for given return levels
-#    - Plot efficient frontier with color-coded Sharpe ratio
-#    - Mark: max Sharpe, min volatility, equal-weight portfolios
-#
-# 4. CVaR extension
-#    - Historical simulation CVaR at 95% and 99% confidence
-#    - Compare optimized vs. equal-weight CVaR
-#
-# 5. Weights table
-#    - Show recommended weights for max-Sharpe portfolio
-#    - Rebalancing delta vs. user's current holdings
-# ------------------------------------------------------------
+st.divider()
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Tabs
+# ─────────────────────────────────────────────────────────────────────────────
+tab_ef, tab_wt, tab_risk, tab_corr, tab_hist = st.tabs([
+    "📈  Efficient Frontier",
+    "⚖️  Optimal Weights",
+    "🛡️  Risk Analysis",
+    "🔗  Correlations",
+    "📅  Historical Returns",
+])
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TAB 1 — Efficient Frontier
+# ══════════════════════════════════════════════════════════════════════════════
+with tab_ef:
+    fig = go.Figure()
+
+    # ── Random portfolio scatter (coloured by Sharpe) ──
+    fig.add_trace(go.Scatter(
+        x    = scatter["vol"] * 100,
+        y    = scatter["return"] * 100,
+        mode = "markers",
+        marker = dict(
+            color    = scatter["sharpe"],
+            colorscale = "Viridis",
+            size     = 3,
+            opacity  = 0.45,
+            colorbar = dict(
+                title      = "Sharpe",
+                thickness  = 12,
+                len        = 0.55,
+                tickfont   = dict(size=10),
+                titlefont  = dict(size=11),
+            ),
+        ),
+        name         = "Random portfolios",
+        hovertemplate = "Vol: %{x:.1f}%<br>Return: %{y:.1f}%<extra></extra>",
+    ))
+
+    # ── Parametric efficient frontier ──
+    if not frontier.empty:
+        fig.add_trace(go.Scatter(
+            x    = frontier["vol"] * 100,
+            y    = frontier["return"] * 100,
+            mode = "lines",
+            line = dict(color="white", width=2),
+            name = "Efficient frontier",
+            hovertemplate = "Vol: %{x:.1f}%<br>Return: %{y:.1f}%<extra></extra>",
+        ))
+
+    # ── Marked portfolios ──
+    def _mark(vol, ret, label, color, symbol, pos="top right"):
+        fig.add_trace(go.Scatter(
+            x    = [vol * 100], y = [ret * 100],
+            mode = "markers+text",
+            marker     = dict(color=color, size=13, symbol=symbol,
+                              line=dict(color="white", width=1)),
+            text       = [label],
+            textposition = pos,
+            textfont   = dict(color=color, size=11),
+            name       = label,
+        ))
+
+    _mark(opt_v, opt_r, opt_label,       GOLD,  "star")
+    if not gmv_mode:
+        _mark(gmv_v, gmv_r, "Min Volatility", "white", "circle")
+    _mark(eq_v,  eq_r,  "Equal Weight",  AMBER, "diamond")
+
+    fig.update_layout(
+        **_CHART_BASE,
+        title       = dict(text="Efficient Frontier · Annualised Risk vs. Return",
+                           font=dict(color=GOLD_LIGHT, size=15)),
+        xaxis_title = "Annualised Volatility (%)",
+        yaxis_title = "Annualised Return (%)",
+        height      = 500,
+        legend      = dict(bgcolor=NAVY_MID, bordercolor=GOLD, borderwidth=1,
+                           font=dict(color="white")),
+        hovermode   = "closest",
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+    if gmv_mode:
+        st.info(
+            "**GMV mode active** — expected return estimates are ignored. "
+            "The optimal portfolio is the Global Minimum Variance portfolio. "
+            "The efficient frontier is shown for context."
+        )
+    else:
+        st.caption(
+            "Return estimates derived from historical means — noisy over short lookbacks. "
+            "Covariance estimated via Ledoit-Wolf shrinkage for numerical stability."
+        )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TAB 2 — Optimal Weights
+# ══════════════════════════════════════════════════════════════════════════════
+with tab_wt:
+    sorted_idx = np.argsort(opt_w)[::-1]
+
+    # Horizontal bar chart
+    fig_w = go.Figure(go.Bar(
+        x             = opt_w[sorted_idx] * 100,
+        y             = [valid[i] for i in sorted_idx],
+        orientation   = "h",
+        marker_color  = GOLD,
+        text          = [f"{opt_w[i]*100:.1f}%" for i in sorted_idx],
+        textposition  = "outside",
+        textfont      = dict(color="white", size=11),
+        name          = opt_label,
+    ))
+    # Equal-weight overlay
+    fig_w.add_trace(go.Bar(
+        x             = [eq_w[0] * 100] * n,
+        y             = [valid[i] for i in sorted_idx],
+        orientation   = "h",
+        marker_color  = AMBER,
+        opacity       = 0.45,
+        name          = "Equal Weight",
+    ))
+
+    fig_w.update_layout(
+        **_CHART_BASE,
+        title      = dict(text=f"{opt_label} · Asset Allocation",
+                          font=dict(color=GOLD_LIGHT, size=15)),
+        xaxis_title = "Weight (%)",
+        barmode    = "overlay",
+        height     = max(320, n * 48 + 100),
+        legend     = dict(bgcolor=NAVY_MID, bordercolor=GOLD, borderwidth=1),
+    )
+    st.plotly_chart(fig_w, use_container_width=True)
+
+    # Weights table
+    st.subheader("Weights Table")
+    wt_df = pd.DataFrame({
+        "Ticker":         valid,
+        "Optimal Weight": [P(w) for w in opt_w],
+        "Equal Weight":   [P(eq_w[0])] * n,
+        "Δ (Opt − EW)":   [f"{(o - eq_w[0])*100:+.1f}pp" for o in opt_w],
+    })
+    st.dataframe(wt_df, use_container_width=True, hide_index=True)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TAB 3 — Risk Analysis
+# ══════════════════════════════════════════════════════════════════════════════
+with tab_risk:
+    col_l, col_r = st.columns(2)
+
+    # Portfolio comparison table
+    with col_l:
+        st.subheader("Portfolio Summary")
+        risk_df = pd.DataFrame({
+            "Portfolio":          [opt_label, "Min Volatility", "Equal Weight"],
+            "Ann. Return":        [P(opt_r),  P(gmv_r),  P(eq_r)],
+            "Ann. Volatility":    [P(opt_v),  P(gmv_v),  P(eq_v)],
+            "Sharpe Ratio":       [f"{opt_s:.2f}", f"{gmv_s:.2f}", f"{eq_s:.2f}"],
+            "Monthly CVaR 95%":   [P(opt_cvar), P(gmv_cvar), P(eq_cvar)],
+            "Max Drawdown":       [P(opt_mdd), P(max_drawdown(ret, gmv_w)), P(eq_mdd)],
+        })
+        st.dataframe(risk_df, use_container_width=True, hide_index=True)
+        st.caption(
+            "CVaR = average monthly loss in the worst 5% of months (historical). "
+            "Max Drawdown = worst peak-to-trough decline over the full lookback."
+        )
+
+    # Per-asset risk table
+    with col_r:
+        st.subheader("Individual Asset Risk")
+        asset_rows = []
+        for i, t in enumerate(valid):
+            w1 = np.zeros(n); w1[i] = 1.0
+            a_r = float(mu[i])
+            a_v = float(np.sqrt(cov[i, i]))
+            a_s = (a_r - rf) / a_v if a_v > 1e-12 else 0.0
+            asset_rows.append({
+                "Ticker":          t,
+                "Ann. Return":     P(a_r),
+                "Ann. Volatility": P(a_v),
+                "Sharpe":          f"{a_s:.2f}",
+                "CVaR (monthly)":  P(cvar_monthly(ret, w1)),
+            })
+        st.dataframe(pd.DataFrame(asset_rows), use_container_width=True, hide_index=True)
+
+    # Volatility comparison bar chart
+    st.subheader("Volatility Comparison")
+    vol_labels = valid + [opt_label, "Equal Weight"]
+    vol_vals   = [np.sqrt(cov[i, i]) * 100 for i in range(n)] + [opt_v*100, eq_v*100]
+    vol_colors = [NAVY_LIGHT] * n + [GOLD, AMBER]
+
+    fig_vol = go.Figure(go.Bar(
+        x             = vol_labels,
+        y             = vol_vals,
+        marker_color  = vol_colors,
+        text          = [f"{v:.1f}%" for v in vol_vals],
+        textposition  = "outside",
+        textfont      = dict(color="white"),
+    ))
+    fig_vol.update_layout(
+        **_CHART_BASE,
+        title       = dict(text="Annualised Volatility — Assets vs. Portfolios",
+                           font=dict(color=GOLD_LIGHT, size=15)),
+        yaxis_title = "Ann. Volatility (%)",
+        height      = 360,
+        showlegend  = False,
+    )
+    st.plotly_chart(fig_vol, use_container_width=True)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TAB 4 — Correlations
+# ══════════════════════════════════════════════════════════════════════════════
+with tab_corr:
+    corr = ret.corr()
+
+    # Brand diverging scale: blue (negative) → navy-mid (zero) → gold (positive)
+    corr_scale = [
+        [0.0,  "#4ca3c9"],
+        [0.5,  NAVY_MID],
+        [1.0,  GOLD],
+    ]
+
+    fig_corr = go.Figure(go.Heatmap(
+        z            = corr.values,
+        x            = valid,
+        y            = valid,
+        colorscale   = corr_scale,
+        zmid=0, zmin=-1, zmax=1,
+        text         = [[f"{v:.2f}" for v in row] for row in corr.values],
+        texttemplate = "%{text}",
+        textfont     = dict(size=11, color="white"),
+        colorbar     = dict(
+            title     = "Corr.",
+            thickness = 14,
+            tickfont  = dict(size=10),
+        ),
+    ))
+    fig_corr.update_layout(
+        **_CHART_BASE,
+        title  = dict(text="Asset Correlation Matrix · Monthly Log Returns",
+                      font=dict(color=GOLD_LIGHT, size=15)),
+        height = max(380, n * 55 + 120),
+    )
+    st.plotly_chart(fig_corr, use_container_width=True)
+    st.caption(
+        "Gold = strong positive correlation (assets move together). "
+        "Blue = negative correlation (diversification benefit). "
+        "Note: Ledoit-Wolf shrinkage is applied to the covariance matrix used for optimisation, not to this display."
+    )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TAB 5 — Historical Returns
+# ══════════════════════════════════════════════════════════════════════════════
+with tab_hist:
+    # Cumulative total returns from monthly log-return series
+    monthly_px = prices.resample("ME").last()
+    start_date = monthly_px.index[0]
+
+    # Portfolio cumulative returns (prepend 0% at start date)
+    def _cum_ret_pct(w: np.ndarray) -> pd.Series:
+        cr = (np.exp(np.cumsum(ret.values @ w)) - 1) * 100
+        s  = pd.Series(
+            np.concatenate([[0.0], cr]),
+            index=pd.DatetimeIndex([start_date, *ret.index]),
+        )
+        return s
+
+    opt_cum = _cum_ret_pct(opt_w)
+    eq_cum  = _cum_ret_pct(eq_w)
+
+    # Individual assets (simple total return)
+    asset_cum = (monthly_px / monthly_px.iloc[0] - 1) * 100
+
+    fig_h = go.Figure()
+
+    ASSET_COLORS = [
+        "#4ca3c9", "#c94c4c", "#4cc94c", "#c9994c",
+        "#9c4cc9", "#4cc9c9", "#c94c9c", "#c9c94c",
+    ]
+    for i, t in enumerate(valid):
+        fig_h.add_trace(go.Scatter(
+            x    = asset_cum.index,
+            y    = asset_cum[t],
+            mode = "lines",
+            name = t,
+            line = dict(color=ASSET_COLORS[i % len(ASSET_COLORS)], width=1.5),
+            opacity = 0.65,
+        ))
+
+    # Equal weight
+    fig_h.add_trace(go.Scatter(
+        x    = eq_cum.index, y = eq_cum,
+        mode = "lines", name = "Equal Weight",
+        line = dict(color=AMBER, width=2, dash="dash"),
+    ))
+
+    # Optimal portfolio — prominent gold line
+    fig_h.add_trace(go.Scatter(
+        x    = opt_cum.index, y = opt_cum,
+        mode = "lines", name = opt_label,
+        line = dict(color=GOLD, width=3),
+    ))
+
+    fig_h.add_hline(y=0, line_color=NAVY_LIGHT, line_width=1)
+    fig_h.update_layout(
+        **_CHART_BASE,
+        title       = dict(
+            text=f"Cumulative Returns · {lookback_label} Lookback  ⚠ In-sample",
+            font=dict(color=GOLD_LIGHT, size=15),
+        ),
+        xaxis_title = "Date",
+        yaxis_title = "Cumulative Return (%)",
+        yaxis       = dict(ticksuffix="%", gridcolor=NAVY_LIGHT),
+        height      = 470,
+        legend      = dict(bgcolor=NAVY_MID, bordercolor=GOLD, borderwidth=1,
+                           font=dict(color="white")),
+        hovermode   = "x unified",
+    )
+    st.plotly_chart(fig_h, use_container_width=True)
+    st.caption(
+        "⚠️ **In-sample results.** The optimal weights were derived from this same data period. "
+        "Historical returns shown here are not a forecast of future performance."
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Footer
+# ─────────────────────────────────────────────────────────────────────────────
+st.divider()
+st.caption(
+    "**Garrison Financial Group** · [gfg.finance](https://gfg.finance) · "
+    "Optimisation: Markowitz mean-variance with Ledoit-Wolf shrinkage covariance · "
+    "Historical return estimates are noisy — treat results as a starting point, not a prescription. "
+    "For educational and illustrative purposes only — consult a licensed financial advisor."
+)
