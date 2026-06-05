@@ -1,5 +1,6 @@
 /* =============================================
    Garrison Financial Group — Stylesheet
+   Palette: forest green (#0f2114) + cream (#dbd7c1)
    ============================================= */
 
 /* --- Reset & Base --- */
@@ -10,19 +11,34 @@
 }
 
 :root {
-  --navy:       #0d1b2a;
-  --navy-mid:   #1b2e45;
-  --navy-light: #243b55;
-  --gold:       #c9a84c;
-  --gold-light: #e0c068;
-  --white:      #ffffff;
-  --off-white:  #f4f6f9;
-  --text-muted: #8a9bb0;
-  --border:     rgba(255,255,255,0.08);
+  /* ── Dark family (hero, navbar, footer, app-bar) ── */
+  --navy:       #0f2114;   /* darkest forest green              */
+  --navy-mid:   #1a3320;   /* mid forest — gradients, app-bar   */
+  --navy-light: #243b2c;   /* light forest — borders on dark bg */
 
+  /* ── Light family (tools, about, body) ── */
+  --cream:       #dbd7c1;  /* main page / tools section bg      */
+  --cream-light: #e8e5d6;  /* cards, about section bg           */
+  --cream-dark:  #cac6b0;  /* subtle dividers on cream bg       */
+
+  /* ── Accent ── */
+  --gold:       #dbd7c1;   /* cream — accent/highlight on dark  */
+  --gold-light: #e8e5d6;   /* lighter cream                     */
+
+  /* ── Typography ── */
+  --white:            #f2f0e8;   /* warm near-white — text on dark    */
+  --off-white:        #f7f6f1;   /* very light — subtle variant       */
+  --text-on-light:    #0f2114;   /* forest text on cream bg           */
+  --text-muted:       #8aab8f;   /* sage — muted text on dark bg      */
+  --text-muted-light: #4a5c4e;   /* sage — muted text on cream bg     */
+
+  /* ── Borders ── */
+  --border:       rgba(219,215,193,0.12); /* cream border on dark bg   */
+  --border-light: rgba(15,33,20,0.14);    /* forest border on cream bg */
+
+  /* ── Fonts & layout ── */
   --font-sans: 'Georgia', 'Times New Roman', serif;
   --font-ui:   -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
   --max-width: 1100px;
   --radius: 8px;
 }
@@ -31,30 +47,32 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Body defaults to the cream / light scheme */
 body {
   font-family: var(--font-ui);
-  background-color: var(--navy);
-  color: var(--white);
+  background-color: var(--cream);
+  color: var(--text-on-light);
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
 }
 
+/* Global links — forest on cream; overridden to cream in dark sections */
 a {
-  color: var(--gold);
+  color: var(--text-on-light);
   text-decoration: none;
   transition: color 0.2s;
 }
 
 a:hover {
-  color: var(--gold-light);
+  color: var(--navy-mid);
 }
 
-/* --- Navbar --- */
+/* --- Navbar (dark) --- */
 .navbar {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(13, 27, 42, 0.92);
+  background: rgba(15, 33, 20, 0.94);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
 }
@@ -72,7 +90,7 @@ a:hover {
   font-family: var(--font-sans);
   font-size: 1.1rem;
   font-weight: bold;
-  color: var(--white);
+  color: var(--gold);
   letter-spacing: 0.02em;
 }
 
@@ -94,6 +112,7 @@ a:hover {
 }
 
 /* --- Buttons --- */
+/* Primary — cream fill on dark hero background */
 .btn-primary {
   display: inline-block;
   padding: 0.75rem 1.75rem;
@@ -111,6 +130,7 @@ a:hover {
   transform: translateY(-1px);
 }
 
+/* Outline — cream border/text on dark navbar */
 .btn-outline {
   display: inline-block;
   padding: 0.4rem 1rem;
@@ -126,24 +146,26 @@ a:hover {
   color: var(--navy);
 }
 
+/* Card CTA — forest text on cream card */
 .btn-card {
   display: inline-block;
   margin-top: 1rem;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--gold);
+  color: var(--text-on-light);
   transition: color 0.2s;
 }
 
 .btn-card:hover {
-  color: var(--gold-light);
+  color: var(--navy-mid);
 }
 
-/* --- Hero --- */
+/* --- Hero (dark) --- */
 .hero {
   padding: 7rem 2rem 6rem;
   text-align: center;
   background: linear-gradient(160deg, var(--navy) 0%, var(--navy-mid) 100%);
+  color: var(--white);           /* override light body default */
 }
 
 .hero-inner {
@@ -155,7 +177,7 @@ a:hover {
   font-size: 0.8rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--gold);            /* cream eyebrow on dark green */
   margin-bottom: 1rem;
 }
 
@@ -175,7 +197,12 @@ a:hover {
   margin: 0 auto 2.5rem;
 }
 
-/* --- Sections --- */
+/* Hero links follow cream scheme */
+.hero a {
+  color: var(--gold);
+}
+
+/* --- Section shared --- */
 .section-inner {
   max-width: var(--max-width);
   margin: 0 auto;
@@ -187,20 +214,20 @@ a:hover {
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 0.75rem;
-  color: var(--white);
+  color: var(--text-on-light);   /* forest on cream sections */
 }
 
 .section-sub {
-  color: var(--text-muted);
+  color: var(--text-muted-light);
   font-size: 1rem;
   max-width: 600px;
   margin-bottom: 3rem;
 }
 
-/* --- Tools Section --- */
+/* --- Tools Section (cream / light) --- */
 .tools {
   padding: 5rem 2rem;
-  background: var(--navy-mid);
+  background: var(--cream);
 }
 
 .tool-grid {
@@ -210,16 +237,17 @@ a:hover {
 }
 
 .tool-card {
-  background: var(--navy-light);
-  border: 1px solid var(--border);
+  background: var(--cream-light);
+  border: 1px solid var(--border-light);
   border-radius: calc(var(--radius) * 1.5);
   padding: 2rem;
-  transition: transform 0.2s, border-color 0.2s;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
 .tool-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(201, 168, 76, 0.3);
+  border-color: rgba(15, 33, 20, 0.35);
+  box-shadow: 0 8px 24px rgba(15, 33, 20, 0.10);
 }
 
 .tool-icon {
@@ -231,19 +259,20 @@ a:hover {
   font-family: var(--font-sans);
   font-size: 1.15rem;
   margin-bottom: 0.75rem;
-  color: var(--white);
+  color: var(--text-on-light);
 }
 
 .tool-card p {
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: var(--text-muted-light);
   line-height: 1.7;
 }
 
-/* --- About Section --- */
+/* --- About Section (slightly darker cream for visual rhythm) --- */
 .about {
   padding: 5rem 2rem;
-  background: var(--navy);
+  background: var(--cream-light);
+  border-top: 1px solid var(--border-light);
 }
 
 .about-inner {
@@ -251,16 +280,25 @@ a:hover {
 }
 
 .about-text p {
-  color: var(--text-muted);
+  color: var(--text-muted-light);
   font-size: 1rem;
   margin-bottom: 1rem;
 }
 
-/* --- Footer --- */
+/* --- Footer (dark — mirrors navbar) --- */
 .footer {
   padding: 2rem;
   border-top: 1px solid var(--border);
   background: var(--navy);
+  color: var(--text-muted);
+}
+
+.footer a {
+  color: var(--gold);
+}
+
+.footer a:hover {
+  color: var(--gold-light);
 }
 
 .footer-inner {
@@ -273,11 +311,15 @@ a:hover {
   color: var(--text-muted);
 }
 
+/* hr dividers */
+hr {
+  border-color: var(--border-light);
+}
+
 /* =============================================
-   App embed page  (docs/monte-carlo.html etc.)
-   Layout and loading overlay are handled in
-   page-scoped <style> + JS; only shared
-   chrome components are defined here.
+   App embed pages  (monte-carlo.html etc.)
+   Navbar + app-bar stay dark (forest) for
+   contrast against the embedded Streamlit apps.
    ============================================= */
 
 /* Slim branded bar below the navbar */
