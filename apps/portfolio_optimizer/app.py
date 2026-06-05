@@ -32,30 +32,32 @@ st.set_page_config(
 # ─────────────────────────────────────────────────────────────────────────────
 # Brand palette & CSS
 # ─────────────────────────────────────────────────────────────────────────────
-NAVY       = "#0d1b2a"
-NAVY_MID   = "#1b2e45"
-NAVY_LIGHT = "#243b55"
-GOLD       = "#c9a84c"
-GOLD_LIGHT = "#e0c068"
-AMBER      = "#ff9800"
-GREEN      = "#4caf50"
-RED        = "#f44336"
+FOREST       = "#0f2114"
+FOREST_MID   = "#1a3320"
+FOREST_LIGHT = "#2a4a32"
+CREAM        = "#dbd7c1"
+CREAM_LIGHT  = "#e8e5d6"
+CREAM_DARK   = "#cac6b0"
+AMBER        = "#b5702a"
+GREEN        = "#2d6a4f"
+RED          = "#c0392b"
 
 st.markdown(
     f"""
     <style>
-    [data-testid="stAppViewContainer"] {{background-color:{NAVY}; color:#e8e8e8;}}
-    [data-testid="stHeader"]           {{background-color:{NAVY};}}
-    [data-testid="stSidebar"]          {{background-color:{NAVY_MID};}}
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {{color:#ccc;}}
-    h1 {{color:{GOLD}; font-family:'Georgia',serif; letter-spacing:0.02em;}}
-    h2, h3, h4 {{color:{GOLD_LIGHT};}}
+    [data-testid="stAppViewContainer"] {{background-color:{CREAM}; color:{FOREST};}}
+    [data-testid="stHeader"]           {{background-color:{CREAM};}}
+    [data-testid="stSidebar"]          {{background-color:{CREAM_LIGHT};}}
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {{color:#4a5c4e;}}
+    h1 {{color:{FOREST}; font-family:'Georgia',serif; letter-spacing:0.02em;}}
+    h2, h3, h4 {{color:{FOREST_MID};}}
     [data-testid="metric-container"] {{
-        background:{NAVY_MID}; border-radius:8px; padding:0.8rem 1rem;
+        background:{CREAM_LIGHT}; border-radius:8px; padding:0.8rem 1rem;
+        border:1px solid {CREAM_DARK};
     }}
-    [data-testid="stMetricValue"] {{color:{GOLD_LIGHT};}}
-    [data-testid="stMetricLabel"] {{color:#aaa;}}
-    hr {{border-color:{NAVY_LIGHT};}}
+    [data-testid="stMetricValue"] {{color:{FOREST};}}
+    [data-testid="stMetricLabel"] {{color:#4a5c4e;}}
+    hr {{border-color:{CREAM_DARK};}}
     </style>
     """,
     unsafe_allow_html=True,
@@ -76,12 +78,12 @@ N_STARTS     = 20      # optimiser random restarts for Sharpe maximisation
 
 # Shared Plotly layout for all charts
 _CHART_BASE = dict(
-    paper_bgcolor = NAVY,
-    plot_bgcolor  = NAVY_MID,
-    font          = dict(color="#e0e0e0", size=12),
+    paper_bgcolor = CREAM,
+    plot_bgcolor  = CREAM_LIGHT,
+    font          = dict(color=FOREST, size=12),
     margin        = dict(l=60, r=30, t=55, b=50),
-    xaxis         = dict(gridcolor=NAVY_LIGHT, zerolinecolor=NAVY_LIGHT),
-    yaxis         = dict(gridcolor=NAVY_LIGHT, zerolinecolor=NAVY_LIGHT),
+    xaxis         = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK),
+    yaxis         = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK),
 )
 
 
@@ -444,7 +446,7 @@ with tab_ef:
             x    = frontier["vol"] * 100,
             y    = frontier["return"] * 100,
             mode = "lines",
-            line = dict(color="white", width=2),
+            line = dict(color=FOREST, width=2),
             name = "Efficient frontier",
             hovertemplate = "Vol: %{x:.1f}%<br>Return: %{y:.1f}%<extra></extra>",
         ))
@@ -462,20 +464,20 @@ with tab_ef:
             name       = label,
         ))
 
-    _mark(opt_v, opt_r, opt_label,       GOLD,  "star")
+    _mark(opt_v, opt_r, opt_label,       FOREST, "star")
     if not gmv_mode:
-        _mark(gmv_v, gmv_r, "Min Volatility", "white", "circle")
+        _mark(gmv_v, gmv_r, "Min Volatility", FOREST_LIGHT, "circle")
     _mark(eq_v,  eq_r,  "Equal Weight",  AMBER, "diamond")
 
     fig.update_layout(
         **_CHART_BASE,
         title       = dict(text="Efficient Frontier · Annualised Risk vs. Return",
-                           font=dict(color=GOLD_LIGHT, size=15)),
+                           font=dict(color=FOREST, size=15)),
         xaxis_title = "Annualised Volatility (%)",
         yaxis_title = "Annualised Return (%)",
         height      = 500,
-        legend      = dict(bgcolor=NAVY_MID, bordercolor=GOLD, borderwidth=1,
-                           font=dict(color="white")),
+        legend      = dict(bgcolor=CREAM_LIGHT, bordercolor=FOREST, borderwidth=1,
+                           font=dict(color=FOREST)),
         hovermode   = "closest",
     )
     st.plotly_chart(fig, use_container_width=True)
@@ -504,10 +506,10 @@ with tab_wt:
         x             = opt_w[sorted_idx] * 100,
         y             = [valid[i] for i in sorted_idx],
         orientation   = "h",
-        marker_color  = GOLD,
+        marker_color  = FOREST,
         text          = [f"{opt_w[i]*100:.1f}%" for i in sorted_idx],
         textposition  = "outside",
-        textfont      = dict(color="white", size=11),
+        textfont      = dict(color=FOREST, size=11),
         name          = opt_label,
     ))
     # Equal-weight overlay
@@ -523,11 +525,11 @@ with tab_wt:
     fig_w.update_layout(
         **_CHART_BASE,
         title      = dict(text=f"{opt_label} · Asset Allocation",
-                          font=dict(color=GOLD_LIGHT, size=15)),
+                          font=dict(color=FOREST, size=15)),
         xaxis_title = "Weight (%)",
         barmode    = "overlay",
         height     = max(320, n * 48 + 100),
-        legend     = dict(bgcolor=NAVY_MID, bordercolor=GOLD, borderwidth=1),
+        legend     = dict(bgcolor=CREAM_LIGHT, bordercolor=FOREST, borderwidth=1),
     )
     st.plotly_chart(fig_w, use_container_width=True)
 
@@ -587,7 +589,7 @@ with tab_risk:
     st.subheader("Volatility Comparison")
     vol_labels = valid + [opt_label, "Equal Weight"]
     vol_vals   = [np.sqrt(cov[i, i]) * 100 for i in range(n)] + [opt_v*100, eq_v*100]
-    vol_colors = [NAVY_LIGHT] * n + [GOLD, AMBER]
+    vol_colors = [CREAM_DARK] * n + [FOREST, AMBER]
 
     fig_vol = go.Figure(go.Bar(
         x             = vol_labels,
@@ -595,12 +597,12 @@ with tab_risk:
         marker_color  = vol_colors,
         text          = [f"{v:.1f}%" for v in vol_vals],
         textposition  = "outside",
-        textfont      = dict(color="white"),
+        textfont      = dict(color=FOREST),
     ))
     fig_vol.update_layout(
         **_CHART_BASE,
         title       = dict(text="Annualised Volatility — Assets vs. Portfolios",
-                           font=dict(color=GOLD_LIGHT, size=15)),
+                           font=dict(color=FOREST, size=15)),
         yaxis_title = "Ann. Volatility (%)",
         height      = 360,
         showlegend  = False,
@@ -614,11 +616,11 @@ with tab_risk:
 with tab_corr:
     corr = ret.corr()
 
-    # Brand diverging scale: blue (negative) → navy-mid (zero) → gold (positive)
+    # Diverging scale: blue (negative) → cream (zero) → forest (positive)
     corr_scale = [
-        [0.0,  "#4ca3c9"],
-        [0.5,  NAVY_MID],
-        [1.0,  GOLD],
+        [0.0,  "#2c5f8a"],
+        [0.5,  CREAM_LIGHT],
+        [1.0,  FOREST],
     ]
 
     fig_corr = go.Figure(go.Heatmap(
@@ -639,7 +641,7 @@ with tab_corr:
     fig_corr.update_layout(
         **_CHART_BASE,
         title  = dict(text="Asset Correlation Matrix · Monthly Log Returns",
-                      font=dict(color=GOLD_LIGHT, size=15)),
+                      font=dict(color=FOREST, size=15)),
         height = max(380, n * 55 + 120),
     )
     st.plotly_chart(fig_corr, use_container_width=True)
@@ -676,8 +678,8 @@ with tab_hist:
     fig_h = go.Figure()
 
     ASSET_COLORS = [
-        "#4ca3c9", "#c94c4c", "#4cc94c", "#c9994c",
-        "#9c4cc9", "#4cc9c9", "#c94c9c", "#c9c94c",
+        "#2c5f8a", "#c0392b", "#2d6a4f", "#b5702a",
+        "#6c3483", "#1a5276", "#7d6608", "#78281f",
     ]
     for i, t in enumerate(valid):
         fig_h.add_trace(go.Scatter(
@@ -700,22 +702,22 @@ with tab_hist:
     fig_h.add_trace(go.Scatter(
         x    = opt_cum.index, y = opt_cum,
         mode = "lines", name = opt_label,
-        line = dict(color=GOLD, width=3),
+        line = dict(color=FOREST, width=3),
     ))
 
-    fig_h.add_hline(y=0, line_color=NAVY_LIGHT, line_width=1)
+    fig_h.add_hline(y=0, line_color=CREAM_DARK, line_width=1)
     fig_h.update_layout(
         **_CHART_BASE,
         title       = dict(
             text=f"Cumulative Returns · {lookback_label} Lookback  ⚠ In-sample",
-            font=dict(color=GOLD_LIGHT, size=15),
+            font=dict(color=FOREST, size=15),
         ),
         xaxis_title = "Date",
         yaxis_title        = "Cumulative Return (%)",
         yaxis_ticksuffix   = "%",
         height             = 470,
-        legend      = dict(bgcolor=NAVY_MID, bordercolor=GOLD, borderwidth=1,
-                           font=dict(color="white")),
+        legend      = dict(bgcolor=CREAM_LIGHT, bordercolor=FOREST, borderwidth=1,
+                           font=dict(color=FOREST)),
         hovermode   = "x unified",
     )
     st.plotly_chart(fig_h, use_container_width=True)

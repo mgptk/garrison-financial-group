@@ -25,45 +25,47 @@ st.set_page_config(
 # ─────────────────────────────────────────────────────────────────────────────
 # Brand palette & CSS
 # ─────────────────────────────────────────────────────────────────────────────
-NAVY       = "#0d1b2a"
-NAVY_MID   = "#1b2e45"
-NAVY_LIGHT = "#243b55"
-GOLD       = "#c9a84c"
-GOLD_LIGHT = "#e0c068"
-GREEN      = "#4caf50"
-AMBER      = "#ff9800"
-RED        = "#f44336"
+FOREST       = "#0f2114"
+FOREST_MID   = "#1a3320"
+FOREST_LIGHT = "#2a4a32"
+CREAM        = "#dbd7c1"
+CREAM_LIGHT  = "#e8e5d6"
+CREAM_DARK   = "#cac6b0"
+GREEN        = "#2d6a4f"
+AMBER        = "#b5702a"
+RED          = "#c0392b"
 
 st.markdown(
     f"""
     <style>
     /* ── backgrounds ── */
-    [data-testid="stAppViewContainer"] {{background-color:{NAVY}; color:#e8e8e8;}}
-    [data-testid="stHeader"]           {{background-color:{NAVY};}}
-    [data-testid="stSidebar"]          {{background-color:{NAVY_MID};}}
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {{color:#ccc;}}
+    [data-testid="stAppViewContainer"] {{background-color:{CREAM}; color:{FOREST};}}
+    [data-testid="stHeader"]           {{background-color:{CREAM};}}
+    [data-testid="stSidebar"]          {{background-color:{CREAM_LIGHT};}}
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {{color:#4a5c4e;}}
 
     /* ── headings ── */
-    h1 {{color:{GOLD}; font-family:'Georgia',serif; letter-spacing:0.02em;}}
-    h2, h3, h4 {{color:{GOLD_LIGHT};}}
+    h1 {{color:{FOREST}; font-family:'Georgia',serif; letter-spacing:0.02em;}}
+    h2, h3, h4 {{color:{FOREST_MID};}}
 
     /* ── big headline number ── */
     .gfg-headline        {{text-align:center; padding:1.2rem 0 0.4rem;}}
     .gfg-headline .value {{font-size:5rem; font-weight:700; line-height:1;}}
-    .gfg-headline .label {{font-size:1.05rem; color:#aaa; margin-top:0.35rem;}}
+    .gfg-headline .label {{font-size:1.05rem; color:#4a5c4e; margin-top:0.35rem;}}
     .col-green {{color:{GREEN};}}
     .col-amber {{color:{AMBER};}}
     .col-red   {{color:{RED};}}
 
     /* ── metric cards ── */
     [data-testid="metric-container"] {{
-        background:{NAVY_MID}; border-radius:8px; padding:0.8rem 1rem;
+        background:{CREAM_LIGHT}; border-radius:8px; padding:0.8rem 1rem;
+        border:1px solid {CREAM_DARK};
     }}
-    [data-testid="stMetricValue"] {{color:{GOLD_LIGHT};}}
-    [data-testid="stMetricLabel"] {{color:#aaa;}}
+    [data-testid="stMetricValue"] {{color:{FOREST};}}
+    [data-testid="stMetricLabel"] {{color:#4a5c4e;}}
 
     /* ── misc ── */
-    hr {{border-color:{NAVY_LIGHT};}}
+    hr {{border-color:{CREAM_DARK};}}
     </style>
     """,
     unsafe_allow_html=True,
@@ -369,7 +371,7 @@ def _add_band(lo: int, hi: int, alpha: float, name: str) -> None:
         x          = np.concatenate([ages, ages[::-1]]),
         y          = np.concatenate([pX[hi], pX[lo][::-1]]),
         fill       = "toself",
-        fillcolor  = f"rgba(201,168,76,{alpha})",
+        fillcolor  = f"rgba(15,33,20,{alpha})",
         line       = dict(width=0),
         name       = name,
         hoverinfo  = "skip",
@@ -382,20 +384,20 @@ _add_band(25, 75, 0.26, "25th – 75th pctl")
 
 fig_fan.add_trace(go.Scatter(
     x=ages, y=pX[50], mode="lines",
-    line=dict(color=GOLD, width=2.5),
+    line=dict(color=FOREST, width=2.5),
     name="Median",
 ))
 
 # Accumulation vs retirement phase shading
 fig_fan.add_vrect(
     x0=int(current_age), x1=int(retirement_age),
-    fillcolor="rgba(36,59,85,0.40)", layer="below", line_width=0,
+    fillcolor="rgba(202,198,176,0.45)", layer="below", line_width=0,
     annotation_text="Accumulation", annotation_position="top left",
     annotation_font=dict(color="#888", size=11),
 )
 fig_fan.add_vrect(
     x0=int(retirement_age), x1=int(plan_to_age),
-    fillcolor="rgba(13,27,42,0.40)", layer="below", line_width=0,
+    fillcolor="rgba(232,229,214,0.55)", layer="below", line_width=0,
     annotation_text="Retirement", annotation_position="top left",
     annotation_font=dict(color="#888", size=11),
 )
@@ -403,25 +405,25 @@ fig_fan.add_vrect(
 # Retirement date vertical marker
 fig_fan.add_vline(
     x=int(retirement_age),
-    line_dash="dash", line_color=GOLD_LIGHT, line_width=1.5,
+    line_dash="dash", line_color=FOREST_MID, line_width=1.5,
     annotation_text=f"Retire {int(retirement_age)}",
     annotation_position="top right",
-    annotation_font=dict(color=GOLD_LIGHT, size=12),
+    annotation_font=dict(color=FOREST_MID, size=12),
 )
 
 fig_fan.update_layout(
     title       = dict(
         text=f"Portfolio Value Over Time · All values in today's dollars",
-        font=dict(color=GOLD_LIGHT, size=16),
+        font=dict(color=FOREST, size=16),
     ),
-    xaxis       = dict(title="Age", gridcolor=NAVY_LIGHT),
-    yaxis       = dict(title="Portfolio Value", tickformat="$,.0f", gridcolor=NAVY_LIGHT),
-    paper_bgcolor = NAVY,
-    plot_bgcolor  = NAVY_MID,
-    font          = dict(color="#e0e0e0", size=12),
+    xaxis       = dict(title="Age", gridcolor=CREAM_DARK),
+    yaxis       = dict(title="Portfolio Value", tickformat="$,.0f", gridcolor=CREAM_DARK),
+    paper_bgcolor = CREAM,
+    plot_bgcolor  = CREAM_LIGHT,
+    font          = dict(color=FOREST, size=12),
     legend        = dict(
-        bgcolor=NAVY_MID, bordercolor=GOLD, borderwidth=1,
-        font=dict(color="white"),
+        bgcolor=CREAM_LIGHT, bordercolor=FOREST, borderwidth=1,
+        font=dict(color=FOREST),
     ),
     hovermode     = "x unified",
     height        = 470,
@@ -436,8 +438,8 @@ fig_hist = go.Figure()
 fig_hist.add_trace(go.Histogram(
     x                 = final_vals,
     nbinsx            = 80,
-    marker_color      = GOLD,
-    marker_line_color = NAVY_MID,
+    marker_color      = FOREST_MID,
+    marker_line_color = CREAM,
     marker_line_width = 0.6,
     opacity           = 0.82,
     name              = "Final balance",
@@ -453,22 +455,22 @@ fig_hist.add_vline(
 if legacy_floor > 0:
     fig_hist.add_vline(
         x=float(legacy_floor),
-        line_color=GOLD_LIGHT, line_dash="dash", line_width=1.5,
+        line_color=FOREST_MID, line_dash="dash", line_width=1.5,
         annotation_text=f"Legacy floor {fmt_dollar(legacy_floor)}",
         annotation_position="top left",
-        annotation_font=dict(color=GOLD_LIGHT, size=11),
+        annotation_font=dict(color=FOREST_MID, size=11),
     )
 
 fig_hist.update_layout(
     title       = dict(
         text=f"Distribution of Final Portfolio Values at Age {int(plan_to_age)} · Today's Dollars",
-        font=dict(color=GOLD_LIGHT, size=16),
+        font=dict(color=FOREST, size=16),
     ),
-    xaxis       = dict(title="Final Portfolio Value", tickformat="$,.0f", gridcolor=NAVY_LIGHT),
-    yaxis       = dict(title="Number of simulations", gridcolor=NAVY_LIGHT),
-    paper_bgcolor = NAVY,
-    plot_bgcolor  = NAVY_MID,
-    font          = dict(color="#e0e0e0", size=12),
+    xaxis       = dict(title="Final Portfolio Value", tickformat="$,.0f", gridcolor=CREAM_DARK),
+    yaxis       = dict(title="Number of simulations", gridcolor=CREAM_DARK),
+    paper_bgcolor = CREAM,
+    plot_bgcolor  = CREAM_LIGHT,
+    font          = dict(color=FOREST, size=12),
     height        = 390,
     margin        = dict(l=60, r=30, t=60, b=50),
 )

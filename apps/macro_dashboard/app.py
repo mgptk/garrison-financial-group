@@ -27,31 +27,33 @@ st.set_page_config(
 # ─────────────────────────────────────────────────────────────────────────────
 # Brand palette & CSS
 # ─────────────────────────────────────────────────────────────────────────────
-NAVY       = "#0d1b2a"
-NAVY_MID   = "#1b2e45"
-NAVY_LIGHT = "#243b55"
-GOLD       = "#c9a84c"
-GOLD_LIGHT = "#e0c068"
-AMBER      = "#ff9800"
-GREEN      = "#4caf50"
-RED        = "#f44336"
-BLUE       = "#4ca3c9"
+FOREST       = "#0f2114"
+FOREST_MID   = "#1a3320"
+FOREST_LIGHT = "#2a4a32"
+CREAM        = "#dbd7c1"
+CREAM_LIGHT  = "#e8e5d6"
+CREAM_DARK   = "#cac6b0"
+AMBER        = "#b5702a"
+GREEN        = "#2d6a4f"
+RED          = "#c0392b"
+BLUE         = "#2c5f8a"
 
 st.markdown(
     f"""
     <style>
-    [data-testid="stAppViewContainer"] {{background-color:{NAVY}; color:#e8e8e8;}}
-    [data-testid="stHeader"]           {{background-color:{NAVY};}}
-    [data-testid="stSidebar"]          {{background-color:{NAVY_MID};}}
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {{color:#ccc;}}
-    h1 {{color:{GOLD}; font-family:'Georgia',serif; letter-spacing:0.02em;}}
-    h2, h3, h4 {{color:{GOLD_LIGHT};}}
+    [data-testid="stAppViewContainer"] {{background-color:{CREAM}; color:{FOREST};}}
+    [data-testid="stHeader"]           {{background-color:{CREAM};}}
+    [data-testid="stSidebar"]          {{background-color:{CREAM_LIGHT};}}
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {{color:#4a5c4e;}}
+    h1 {{color:{FOREST}; font-family:'Georgia',serif; letter-spacing:0.02em;}}
+    h2, h3, h4 {{color:{FOREST_MID};}}
     [data-testid="metric-container"] {{
-        background:{NAVY_MID}; border-radius:8px; padding:0.8rem 1rem;
+        background:{CREAM_LIGHT}; border-radius:8px; padding:0.8rem 1rem;
+        border:1px solid {CREAM_DARK};
     }}
-    [data-testid="stMetricValue"] {{color:{GOLD_LIGHT};}}
-    [data-testid="stMetricLabel"] {{color:#aaa;}}
-    hr {{border-color:{NAVY_LIGHT};}}
+    [data-testid="stMetricValue"] {{color:{FOREST};}}
+    [data-testid="stMetricLabel"] {{color:#4a5c4e;}}
+    hr {{border-color:{CREAM_DARK};}}
     </style>
     """,
     unsafe_allow_html=True,
@@ -61,16 +63,16 @@ st.markdown(
 # Shared chart defaults — NO xaxis/yaxis here to avoid duplicate-kwarg errors
 # ─────────────────────────────────────────────────────────────────────────────
 _CB = dict(
-    paper_bgcolor = NAVY,
-    plot_bgcolor  = NAVY_MID,
-    font          = dict(color="#e0e0e0", size=12),
+    paper_bgcolor = CREAM,
+    plot_bgcolor  = CREAM_LIGHT,
+    font          = dict(color=FOREST, size=12),
     margin        = dict(l=60, r=40, t=55, b=50),
-    legend        = dict(bgcolor=NAVY_MID, bordercolor=GOLD, borderwidth=1,
-                         font=dict(color="white")),
+    legend        = dict(bgcolor=CREAM_LIGHT, bordercolor=FOREST, borderwidth=1,
+                         font=dict(color=FOREST)),
     hovermode     = "x unified",
 )
 # Reusable axis style dict
-_AX = dict(gridcolor=NAVY_LIGHT, zerolinecolor=NAVY_LIGHT, zerolinewidth=1)
+_AX = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK, zerolinewidth=1)
 
 LOOKBACK_MAP = {"2 yr": 2, "5 yr": 5, "10 yr": 10, "Max": None}
 
@@ -488,9 +490,9 @@ with tab_yc:
         fig.add_trace(go.Scatter(
             x=series.index, y=series.values,
             mode="lines", name="10Y−2Y Spread",
-            line=dict(color=GOLD, width=2),
+            line=dict(color=FOREST, width=2),
             fill="tozeroy",
-            fillcolor=f"rgba(201,168,76,0.15)",
+            fillcolor="rgba(15,33,20,0.10)",
         ))
 
         # Zero line
@@ -513,7 +515,7 @@ with tab_yc:
         fig.update_layout(
             **_CB,
             title=dict(text="10-Year minus 2-Year Treasury Yield Spread",
-                       font=dict(color=GOLD_LIGHT, size=15)),
+                       font=dict(color=FOREST, size=15)),
             xaxis=dict(**_AX, title="Date"),
             yaxis=dict(**_AX, title="Spread (%)"),
             height=420,
@@ -544,7 +546,7 @@ with tab_lm:
             fig_lm.add_trace(go.Scatter(
                 x=unrate_d.index, y=unrate_d.values,
                 mode="lines", name="Unemployment Rate (%)",
-                line=dict(color=GOLD, width=2),
+                line=dict(color=FOREST, width=2),
             ), secondary_y=False)
 
         if sahm_d is not None:
@@ -563,14 +565,14 @@ with tab_lm:
             )
 
         fig_lm.update_layout(
-            paper_bgcolor=NAVY, plot_bgcolor=NAVY_MID,
-            font=dict(color="#e0e0e0", size=12),
+            paper_bgcolor=CREAM, plot_bgcolor=CREAM_LIGHT,
+            font=dict(color=FOREST, size=12),
             margin=dict(l=60, r=60, t=55, b=50),
-            legend=dict(bgcolor=NAVY_MID, bordercolor=GOLD, borderwidth=1,
-                        font=dict(color="white")),
+            legend=dict(bgcolor=CREAM_LIGHT, bordercolor=FOREST, borderwidth=1,
+                        font=dict(color=FOREST)),
             hovermode="x unified",
             title=dict(text="Unemployment Rate & Sahm Rule Indicator",
-                       font=dict(color=GOLD_LIGHT, size=15)),
+                       font=dict(color=FOREST, size=15)),
             height=380,
         )
         fig_lm.update_xaxes(**_AX)
@@ -583,7 +585,7 @@ with tab_lm:
 
     # ── Chart 2: Nonfarm Payrolls MoM ──
     if payems_d is not None and not payems_d.empty:
-        bar_colors = [GOLD if v >= 0 else RED for v in payems_d.values]
+        bar_colors = [GREEN if v >= 0 else RED for v in payems_d.values]
         fig_pay = go.Figure(go.Bar(
             x=payems_d.index, y=payems_d.values,
             marker_color=bar_colors,
@@ -592,11 +594,11 @@ with tab_lm:
         ))
         if show_rec:
             add_recession_shading(fig_pay, raw_usrec, cutoff)
-        fig_pay.add_hline(y=0, line_color=NAVY_LIGHT, line_width=1)
+        fig_pay.add_hline(y=0, line_color=CREAM_DARK, line_width=1)
         fig_pay.update_layout(
             **_CB,
             title=dict(text="Nonfarm Payrolls — Monthly Change (thousands)",
-                       font=dict(color=GOLD_LIGHT, size=15)),
+                       font=dict(color=FOREST, size=15)),
             xaxis=dict(**_AX, title="Date"),
             yaxis=dict(**_AX, title="Change (thousands)"),
             height=340,
@@ -628,7 +630,7 @@ with tab_inf:
             fig_inf.add_trace(go.Scatter(
                 x=cpi_d.index, y=cpi_d.values,
                 mode="lines", name="Headline CPI (YoY)",
-                line=dict(color=GOLD, width=2.5),
+                line=dict(color=FOREST, width=2.5),
             ))
 
         if core_d is not None:
@@ -649,7 +651,7 @@ with tab_inf:
         fig_inf.update_layout(
             **_CB,
             title=dict(text="CPI Inflation — Year-over-Year % Change",
-                       font=dict(color=GOLD_LIGHT, size=15)),
+                       font=dict(color=FOREST, size=15)),
             xaxis=dict(**_AX, title="Date"),
             yaxis=dict(**_AX, title="YoY % Change"),
             height=420,
@@ -671,7 +673,7 @@ with tab_ms:
 
     # ── M2 YoY chart ──
     if m2_d is not None and not m2_d.empty:
-        bar_colors_m2 = [GOLD if v >= 0 else RED for v in m2_d.values]
+        bar_colors_m2 = [GREEN if v >= 0 else RED for v in m2_d.values]
         fig_m2 = go.Figure(go.Bar(
             x=m2_d.index, y=m2_d.values,
             marker_color=bar_colors_m2,
@@ -680,11 +682,11 @@ with tab_ms:
         ))
         if show_rec:
             add_recession_shading(fig_m2, raw_usrec, cutoff)
-        fig_m2.add_hline(y=0, line_color=NAVY_LIGHT, line_width=1)
+        fig_m2.add_hline(y=0, line_color=CREAM_DARK, line_width=1)
         fig_m2.update_layout(
             **_CB,
             title=dict(text="M2 Money Supply — Year-over-Year % Change",
-                       font=dict(color=GOLD_LIGHT, size=15)),
+                       font=dict(color=FOREST, size=15)),
             xaxis=dict(**_AX, title="Date"),
             yaxis=dict(**_AX, title="YoY % Change"),
             height=360,
@@ -719,7 +721,7 @@ with tab_ms:
                     x=list(upper.index) + list(lower.index[::-1]),
                     y=list(upper.values) + list(lower.values[::-1]),
                     fill="toself",
-                    fillcolor=f"rgba(201,168,76,0.12)",
+                    fillcolor="rgba(15,33,20,0.10)",
                     line=dict(width=0),
                     name="±1σ band (12m)",
                     hoverinfo="skip",
@@ -735,13 +737,13 @@ with tab_ms:
         fig_sent.add_trace(go.Scatter(
             x=sent_d.index, y=sent_d.values,
             mode="lines", name="Consumer Sentiment",
-            line=dict(color=GOLD, width=2),
+            line=dict(color=FOREST, width=2),
         ))
 
         fig_sent.update_layout(
             **_CB,
             title=dict(text="UMich Consumer Sentiment Index",
-                       font=dict(color=GOLD_LIGHT, size=15)),
+                       font=dict(color=FOREST, size=15)),
             xaxis=dict(**_AX, title="Date"),
             yaxis=dict(**_AX, title="Index Level"),
             height=360,
