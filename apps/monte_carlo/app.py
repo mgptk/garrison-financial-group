@@ -517,13 +517,14 @@ stats_df = pd.DataFrame({
     ],
 })
 
-stats_df = stats_df.style\
-    .set_table_styles([{'selector': 'th.col_heading', 'props': [('background-color', FOREST_LIGHT), ('color', CREAM_LIGHT)]}])\
-    .set_properties(**{
+# .set_table_styles([{'selector': 'th.col_heading', 'props': [('background-color', FOREST_LIGHT), ('color', CREAM_LIGHT)]}])\
+
+stats_df = stats_df.style.set_properties(**{
     'background-color': CREAM_LIGHT,
     'color': FOREST_MID,
     'border-color': FOREST_LIGHT,
 })
+stats_df = stats_df.style.map_index(lambda v: f"background-color: {FOREST_LIGHT}; color: {CREAM_DARK};", axis="columns")
 
 st.dataframe(stats_df, use_container_width=True, hide_index=True)
 
