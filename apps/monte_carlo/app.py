@@ -517,16 +517,21 @@ stats_df = pd.DataFrame({
     ],
 })
 
-# .set_table_styles([{'selector': 'th.col_heading', 'props': [('background-color', FOREST_LIGHT), ('color', CREAM_LIGHT)]}])\
 
-stats_df = stats_df.style.map_index(lambda v: f"background-color: {FOREST_LIGHT}; color: {CREAM_DARK};", axis="columns")\
+
+stats_styled = stats_df.style.set_table_styles([
+    # Column headers
+    {'selector': 'th.col_heading', 'props': [
+        ('background-color', f'{FOREST_LIGHT} !important'),
+        ('color', f'{CREAM_LIGHT} !important')
+    ]}])\
     .set_properties(**{
     'background-color': CREAM_LIGHT,
     'color': FOREST_MID,
     'border-color': FOREST_LIGHT,
 })
 
-st.dataframe(stats_df, use_container_width=True, hide_index=True)
+st.dataframe(stats_styled, use_container_width=True, hide_index=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 5. Sensitivity analysis
