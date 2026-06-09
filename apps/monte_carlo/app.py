@@ -66,7 +66,7 @@ st.markdown(
 
     /* ── misc ── */
     hr {{border-color:{CREAM_DARK};}}
-    div[data-baseweb="input"] {{foreground-color:{CREAM};background-color:{FOREST_MID};}}
+    [data-baseweb="input"] {{foreground-color:{CREAM};background-color:{FOREST};}}
     </style>
     """,
     unsafe_allow_html=True,
@@ -220,7 +220,7 @@ with st.sidebar:
         "Target retirement age", int(current_age) + 1, 80, 65, 1
     )
     annual_spending = st.number_input(
-        "Annual spending in retirement ($, today's $)",
+        "Annual spending in retirement (\$, today's \$)",
         10_000, 1_000_000, 80_000, 1_000, format="%d",
     )
     plan_to_age     = st.number_input(
@@ -230,7 +230,7 @@ with st.sidebar:
 
     st.subheader(":color[Additional Income in Retirement]{foreground="+FOREST+"}")
     ss_annual    = st.number_input(
-        "Social Security / Pension ($/yr, today's $)",
+        "Social Security / Pension (\$/yr, today's \$)",
         0, 200_000, 24_000, 1_000, format="%d",
     )
     ss_start_age = st.number_input(
@@ -240,7 +240,7 @@ with st.sidebar:
     st.subheader(":color[Portfolio Allocation]{foreground="+FOREST+"}")
     stock_pct   = st.slider("Stocks", 0, 100, 70, 5, format="%d%%")
     stock_alloc = stock_pct / 100
-    st.caption(f"Stocks {stock_pct}% · Bonds {100 - stock_pct}%")
+    st.caption(":color[Stocks "+str(stock_pct)+"% · Bonds "+str(100 - stock_pct)+"%]{foreground="+FOREST_LIGHT+"}")
 
     st.subheader(":color[Legacy Floor (optional)]{foreground="+FOREST+"}")
     legacy_floor = st.number_input(
