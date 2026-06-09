@@ -77,17 +77,6 @@ st.markdown(
     div.stNumberInput button:hover {{
         background-color: {RED};
     }}
-
-    /* ── dataframes ── */
-    .stDataFrame [data-testid="stDataFrame"]{{
-        background-color: {FOREST_LIGHT};
-        color: {CREAM_LIGHT};
-    }}
-    .stDataFrame [data-testid="stDataFrame"]{{
-        background-color: {CREAM_LIGHT};
-        color: {FOREST_MID};
-        border-color: {FOREST_LIGHT};
-    }}
     
     /* ── misc ── */
     hr {{border-color:{CREAM_DARK};}}
@@ -528,40 +517,41 @@ stats_df = pd.DataFrame({
     ],
 })
 
-# stats_styled = stats_df.style.set_table_styles([
+# .set_table_styles([
 #     # Column headers
 #     {'selector': 'th.col_heading',
 #      'props': [
 #         ('background-color', f'{FOREST_LIGHT} !important'),
 #         ('color', f'{CREAM_LIGHT} !important')
 #     ]}])\
-#     .set_properties(**{
-#     'background-color': CREAM_LIGHT,
-#     'color': FOREST_MID,
-#     'border': '1px solid',
-#     'border-color': FOREST_LIGHT,
-# })
+
+stats_styled = stats_df.style.set_properties(**{
+    'background-color': CREAM_LIGHT,
+    'color': FOREST_MID,
+    'border': '1px solid',
+    'border-color': FOREST_LIGHT,
+})
 
 # stats_styled = stats_df.style.set_table_styles([
 #     {'selector': 'th', 'props': [('background-color', FOREST_LIGHT), ('color', CREAM_DARK)]},
 #     {'selector': 'td', 'props': [('background-color', CREAM_LIGHT), ('color', FOREST_MID), ('border-color', FOREST_LIGHT)]}
 # ])
 
-# st.dataframe(stats_df, use_container_width=True, hide_index=True)
+st.dataframe(stats_styled, use_container_width=True, hide_index=True)
 
-st.markdown(
-    stats_df.style.set_table_styles([
-        {'selector': 'th.col_heading', 'props': [
-            ('background-color', FOREST_LIGHT),
-            ('color', CREAM_LIGHT),
-        ]}
-    ]).set_properties(**{
-        'background-color': CREAM_LIGHT,
-        'color': FOREST_MID,
-        'border-color': FOREST_LIGHT,
-    }).to_html(),
-    unsafe_allow_html=True
-)
+# st.markdown(
+#     stats_df.style.set_table_styles([
+#         {'selector': 'th.col_heading', 'props': [
+#             ('background-color', FOREST_LIGHT),
+#             ('color', CREAM_LIGHT),
+#         ]}
+#     ]).set_properties(**{
+#         'background-color': CREAM_LIGHT,
+#         'color': FOREST_MID,
+#         'border-color': FOREST_LIGHT,
+#     }).to_html(),
+#     unsafe_allow_html=True
+# )
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 5. Sensitivity analysis
