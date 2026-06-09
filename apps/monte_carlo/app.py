@@ -542,12 +542,26 @@ stats_df = pd.DataFrame({
 #     'border-color': FOREST_LIGHT,
 # })
 
-stats_styled = stats_df.style.set_table_styles([
-    {'selector': 'th', 'props': [('background-color', FOREST_LIGHT), ('color', CREAM_DARK)]},
-    {'selector': 'td', 'props': [('background-color', CREAM_LIGHT), ('color', FOREST_MID), ('border-color', FOREST_LIGHT)]}
-]).render()
+# stats_styled = stats_df.style.set_table_styles([
+#     {'selector': 'th', 'props': [('background-color', FOREST_LIGHT), ('color', CREAM_DARK)]},
+#     {'selector': 'td', 'props': [('background-color', CREAM_LIGHT), ('color', FOREST_MID), ('border-color', FOREST_LIGHT)]}
+# ])
 
-st.dataframe(stats_styled, use_container_width=True, hide_index=True)
+# st.dataframe(stats_df, use_container_width=True, hide_index=True)
+
+st.markdown(
+    stats_df.style.set_table_styles([
+        {'selector': 'th.col_heading', 'props': [
+            ('background-color', FOREST_LIGHT),
+            ('color', CREAM_LIGHT),
+        ]}
+    ]).set_properties(**{
+        'background-color': CREAM_LIGHT,
+        'color': FOREST_MID,
+        'border-color': FOREST_LIGHT,
+    }).to_html(),
+    unsafe_allow_html=True
+)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 5. Sensitivity analysis
