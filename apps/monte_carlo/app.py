@@ -79,11 +79,11 @@ st.markdown(
     }}
 
     /* ── dataframes ── */
-    thead tr th {{
+    .stDataFrame {{
         background-color: {FOREST_LIGHT};
         color: {CREAM_LIGHT};
     }}
-    tbody tr td {{
+    .stDataFrame {{
         background-color: {CREAM_LIGHT};
         color: {FOREST_MID};
         border-color: {FOREST_LIGHT};
