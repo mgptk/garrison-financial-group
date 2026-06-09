@@ -64,7 +64,7 @@ st.markdown(
     [data-testid="stMetricValue"] {{color:{FOREST};}}
     [data-testid="stMetricLabel"] {{color:#4a5c4e;}}
 
-    /* ── number input ── */
+    /* ── number inputs ── */
     .stNumberInput div[data-baseweb="input"] > div {{
         background-color: {FOREST};
         border-color: {FOREST_LIGHT};
@@ -78,6 +78,17 @@ st.markdown(
         background-color: {RED};
     }}
 
+    /* ── dataframes ── */
+    thead tr th {{
+        background-color: {FOREST_LIGHT} !important;
+        color: {CREAM_LIGHT} !important;
+    }}
+    tbody tr td {{
+        background-color: {CREAM_LIGHT} !important;
+        color: {FOREST_MID} !important;
+        border-color: {FOREST_LIGHT} !important;
+    }}
+    
     /* ── misc ── */
     hr {{border-color:{CREAM_DARK};}}
     </style>
@@ -517,21 +528,21 @@ stats_df = pd.DataFrame({
     ],
 })
 
+# stats_styled = stats_df.style.set_table_styles([
+#     # Column headers
+#     {'selector': 'th.col_heading',
+#      'props': [
+#         ('background-color', f'{FOREST_LIGHT} !important'),
+#         ('color', f'{CREAM_LIGHT} !important')
+#     ]}])\
+#     .set_properties(**{
+#     'background-color': CREAM_LIGHT,
+#     'color': FOREST_MID,
+#     'border': '1px solid',
+#     'border-color': FOREST_LIGHT,
+# })
 
-
-stats_styled = stats_df.style.set_table_styles([
-    # Column headers
-    {'selector': 'th.col_heading', 'props': [
-        ('background-color', f'{FOREST_LIGHT} !important'),
-        ('color', f'{CREAM_LIGHT} !important')
-    ]}])\
-    .set_properties(**{
-    'background-color': CREAM_LIGHT,
-    'color': FOREST_MID,
-    'border-color': FOREST_LIGHT,
-})
-
-st.dataframe(stats_styled, use_container_width=True, hide_index=True)
+st.dataframe(stats_df, use_container_width=True, hide_index=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 5. Sensitivity analysis
