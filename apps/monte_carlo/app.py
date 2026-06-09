@@ -542,7 +542,12 @@ stats_df = pd.DataFrame({
 #     'border-color': FOREST_LIGHT,
 # })
 
-st.dataframe(stats_df, use_container_width=True, hide_index=True)
+stats_styled = stats_df.style.set_table_styles([
+    {'selector': 'th', 'props': [('background-color', FOREST_LIGHT), ('color', CREAM_DARK)]},
+    {'selector': 'td', 'props': [('background-color', CREAM_LIGHT), ('color', FOREST_MID), ('border-color', FOREST_LIGHT)]}
+])
+
+st.dataframe(stats_styled, use_container_width=True, hide_index=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 5. Sensitivity analysis
