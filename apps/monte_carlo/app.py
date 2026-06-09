@@ -45,7 +45,7 @@ st.markdown(
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {{color:#4a5c4e;}}
 
     /* ── headings ── */
-    h1 {{color:{FOREST}; font-family:'Georgia',serif; letter-spacing:0.02em;}}
+    h1 {{color:{CREAM_DARK}; font-family:'Georgia',serif; letter-spacing:0.02em;}}
     h2, h3, h4 {{color:{FOREST_MID};}}
 
     /* ── big headline number ── */
@@ -66,11 +66,17 @@ st.markdown(
 
     /* ── misc ── */
     hr {{border-color:{CREAM_DARK};}}
-    [data-baseweb="input"] {{foreground-color:{CREAM};background-color:{FOREST};}}
+    .stNumberInput div[data-baseweb="input"] > div {{
+        background-color: {FOREST};
+        border-color: {FOREST_LIGHT};
+    }}
+    .stNumberInput input {{color: {CREAM};}}
     </style>
     """,
     unsafe_allow_html=True,
 )
+
+# [data-baseweb="input"] {{foreground-color:{CREAM};background-color:{FOREST};}}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Simulation constants
