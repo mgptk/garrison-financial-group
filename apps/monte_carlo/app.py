@@ -79,11 +79,11 @@ st.markdown(
     }}
 
     /* ── dataframes ── */
-    .stDataFrame {{
+    .stDataFrame [data-testid="stDataFrame"]{{
         background-color: {FOREST_LIGHT};
         color: {CREAM_LIGHT};
     }}
-    .stDataFrame {{
+    .stDataFrame [data-testid="stDataFrame"]{{
         background-color: {CREAM_LIGHT};
         color: {FOREST_MID};
         border-color: {FOREST_LIGHT};
