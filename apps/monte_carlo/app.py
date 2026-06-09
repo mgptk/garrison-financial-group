@@ -482,8 +482,8 @@ fig_hist.update_layout(
         text=f"Distribution of Final Portfolio Values at Age {int(plan_to_age)} · Today's Dollars",
         font=dict(color=FOREST, size=16),
     ),
-    xaxis       = dict(title="Final Portfolio Value", tickformat="$,.0f", gridcolor=CREAM_DARK),
-    yaxis       = dict(title="Number of simulations", gridcolor=CREAM_DARK),
+    xaxis       = dict(title="Final Portfolio Value", title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT), tickformat="$,.0f", gridcolor=CREAM_DARK),
+    yaxis       = dict(title="Number of simulations", title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT), gridcolor=CREAM_DARK),
     paper_bgcolor = CREAM,
     plot_bgcolor  = CREAM_LIGHT,
     font          = dict(color=FOREST, size=12),
@@ -533,9 +533,9 @@ def _sens(override_key: str, override_val: float | int) -> float:
 
 
 tab_age, tab_spend, tab_contrib = st.tabs([
-    "📅  Retirement Age",
-    "💸  Annual Spending",
-    "💰  Annual Contribution",
+    "Retirement Age",
+    "Annual Spending",
+    "Annual Contribution",
 ])
 
 # ── Tab 1: Retirement age ─────────────────────────────────────────────────────
