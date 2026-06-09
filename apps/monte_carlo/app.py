@@ -516,6 +516,13 @@ stats_df = pd.DataFrame({
         fmt_dollar(median_peak),
     ],
 })
+
+stats_df.style.set_properties(**{
+    'background-color': FOREST,
+    'color': CREAM_DARK,
+    'border-color': CREAM_LIGHT
+})
+
 st.dataframe(stats_df, use_container_width=True, hide_index=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
