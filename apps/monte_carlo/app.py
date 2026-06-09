@@ -80,11 +80,6 @@ st.markdown(
 
     /* ── misc ── */
     hr {{border-color:{CREAM_DARK};}}
-    .stNumberInput div[data-baseweb="input"] > div {{
-        background-color: {FOREST};
-        border-color: {FOREST_LIGHT};
-    }}
-    .stNumberInput input {{color: {CREAM_LIGHT};}}
     </style>
     """,
     unsafe_allow_html=True,
@@ -437,8 +432,8 @@ fig_fan.update_layout(
         text=f"Portfolio Value Over Time · All values in today's dollars",
         font=dict(color=FOREST, size=16),
     ),
-    xaxis       = dict(title="Age", gridcolor=CREAM_DARK),
-    yaxis       = dict(title="Portfolio Value", tickformat="$,.0f", gridcolor=CREAM_DARK),
+    xaxis       = dict(title="Age", title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT), gridcolor=CREAM_DARK),
+    yaxis       = dict(title="Portfolio Value", title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT), tickformat="$,.0f", gridcolor=CREAM_DARK),
     paper_bgcolor = CREAM,
     plot_bgcolor  = CREAM_LIGHT,
     font          = dict(color=FOREST, size=12),
