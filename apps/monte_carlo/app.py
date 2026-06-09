@@ -74,7 +74,7 @@ st.markdown(
 # ─────────────────────────────────────────────────────────────────────────────
 # Simulation constants
 # ─────────────────────────────────────────────────────────────────────────────
-N_SIMS          = 5_000
+N_SIMS          = 10_000
 STOCK_BOND_CORR = -0.15   # long-run stock / bond correlation
 
 
@@ -201,7 +201,7 @@ def fmt_pct(v: float) -> str:
 # Sidebar — all user inputs
 # ─────────────────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### 🏛 Garrison Financial Group")
+    st.markdown(":color[### Garrison Financial Group]{foreground="+FOREST+"}")
     st.caption("Monte Carlo Retirement Simulator")
     st.divider()
 
@@ -270,10 +270,10 @@ with st.sidebar:
 
     # Reproducible seed with one-click randomise
     if "seed" not in st.session_state:
-        st.session_state["seed"] = 42
+        st.session_state["seed"] = 53
     seed = int(st.number_input("Random seed", 0, 99_999, st.session_state["seed"]))
     st.session_state["seed"] = seed
-    if st.button("🎲  New random seed", use_container_width=True):
+    if st.button("New random seed", use_container_width=True):
         st.session_state["seed"] = int(np.random.randint(0, 99_999))
         st.rerun()
 
