@@ -545,7 +545,7 @@ stats_df = pd.DataFrame({
 stats_styled = stats_df.style.set_table_styles([
     {'selector': 'th', 'props': [('background-color', FOREST_LIGHT), ('color', CREAM_DARK)]},
     {'selector': 'td', 'props': [('background-color', CREAM_LIGHT), ('color', FOREST_MID), ('border-color', FOREST_LIGHT)]}
-]).to_html()
+]).render()
 
 st.dataframe(stats_styled, use_container_width=True, hide_index=True)
 
