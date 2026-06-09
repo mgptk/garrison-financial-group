@@ -80,13 +80,13 @@ st.markdown(
 
     /* ── dataframes ── */
     thead tr th {{
-        background-color: {FOREST_LIGHT} !important;
-        color: {CREAM_LIGHT} !important;
+        background-color: {FOREST_LIGHT};
+        color: {CREAM_LIGHT};
     }}
     tbody tr td {{
-        background-color: {CREAM_LIGHT} !important;
-        color: {FOREST_MID} !important;
-        border-color: {FOREST_LIGHT} !important;
+        background-color: {CREAM_LIGHT};
+        color: {FOREST_MID};
+        border-color: {FOREST_LIGHT};
     }}
     
     /* ── misc ── */
