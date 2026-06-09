@@ -517,10 +517,12 @@ stats_df = pd.DataFrame({
     ],
 })
 
-stats_df = stats_df.style.set_properties(**{
-    'background-color': FOREST,
-    'color': CREAM_DARK,
-    'border-color': FOREST_LIGHT
+stats_df = stats_df.style\
+    .set_table_styles([{'selector': 'th', 'props': [('background-color', FOREST_LIGHT), ('color', CREAM_LIGHT)]}])\
+    .set_properties(**{
+    'background-color': CREAM_LIGHT,
+    'color': FOREST_LIGHT,
+    'border-color': CREAM_DARK
 })
 
 st.dataframe(stats_df, use_container_width=True, hide_index=True)
