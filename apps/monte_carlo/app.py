@@ -64,13 +64,27 @@ st.markdown(
     [data-testid="stMetricValue"] {{color:{FOREST};}}
     [data-testid="stMetricLabel"] {{color:#4a5c4e;}}
 
+    /* ── number input ── */
+    .stNumberInput div[data-baseweb="input"] > div {{
+        background-color: {FOREST};
+        border-color: {FOREST_LIGHT};
+    }}
+    .stNumberInput input {{color: {CREAM_LIGHT};}}
+    div.stNumberInput button {{
+        color: {CREAM_LIGHT}; /* Change icon color */
+        background-color: {FOREST_LIGHT}; /* Change button background color */
+    }}
+    div.stNumberInput button:hover {{
+        background-color: {RED};
+    }}
+
     /* ── misc ── */
     hr {{border-color:{CREAM_DARK};}}
     .stNumberInput div[data-baseweb="input"] > div {{
         background-color: {FOREST};
         border-color: {FOREST_LIGHT};
     }}
-    .stNumberInput input {{color: {CREAM};}}
+    .stNumberInput input {{color: {CREAM_LIGHT};}}
     </style>
     """,
     unsafe_allow_html=True,
