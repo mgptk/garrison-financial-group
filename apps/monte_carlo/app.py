@@ -66,6 +66,7 @@ st.markdown(
 
     /* ── misc ── */
     hr {{border-color:{CREAM_DARK};}}
+    div[data-baseweb="input"] {{foreground-color:{CREAM};background-color:{FOREST_MID};}}
     </style>
     """,
     unsafe_allow_html=True,
@@ -205,7 +206,7 @@ with st.sidebar:
     st.caption(":color[Monte Carlo Retirement Simulator]{foreground="+FOREST_MID+"}")
     st.divider()
 
-    st.subheader("Your Situation")
+    st.subheader(":color[Your Situation]{foreground="+FOREST+"}")
     current_age     = st.number_input("Current age",           18,  80,     35,    1)
     portfolio_value = st.number_input(
         "Current portfolio ($)", 0, 10_000_000, 150_000, 5_000, format="%d"
@@ -214,7 +215,7 @@ with st.sidebar:
         "Annual contribution ($)", 0, 500_000, 20_000, 1_000, format="%d"
     )
 
-    st.subheader("Retirement Plan")
+    st.subheader(":color[Retirement Plan]{foreground="+FOREST+"}")
     retirement_age  = st.number_input(
         "Target retirement age", int(current_age) + 1, 80, 65, 1
     )
@@ -227,7 +228,7 @@ with st.sidebar:
         int(retirement_age) + 1, 110, 90, 1,
     )
 
-    st.subheader("Additional Income in Retirement")
+    st.subheader(":color[Additional Income in Retirement]{foreground="+FOREST+"}")
     ss_annual    = st.number_input(
         "Social Security / Pension ($/yr, today's $)",
         0, 200_000, 24_000, 1_000, format="%d",
@@ -236,12 +237,12 @@ with st.sidebar:
         "Income starts at age", int(retirement_age), 85, 67, 1
     )
 
-    st.subheader("Portfolio Allocation")
+    st.subheader(":color[Portfolio Allocation]{foreground="+FOREST+"}")
     stock_pct   = st.slider("Stocks", 0, 100, 70, 5, format="%d%%")
     stock_alloc = stock_pct / 100
     st.caption(f"Stocks {stock_pct}% · Bonds {100 - stock_pct}%")
 
-    st.subheader("Legacy Floor (optional)")
+    st.subheader(":color[Legacy Floor (optional)]{foreground="+FOREST+"}")
     legacy_floor = st.number_input(
         "Minimum ending balance ($, 0 = none)",
         0, 5_000_000, 0, 10_000, format="%d",
