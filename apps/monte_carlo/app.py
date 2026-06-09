@@ -201,7 +201,7 @@ def fmt_pct(v: float) -> str:
 # Sidebar — all user inputs
 # ─────────────────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown(":color[### Garrison Financial Group]{foreground="+FOREST+"}")
+    st.markdown("### :color[Garrison Financial Group]{foreground="+FOREST+"}")
     st.caption("Monte Carlo Retirement Simulator")
     st.divider()
 
