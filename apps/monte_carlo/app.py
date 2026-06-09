@@ -202,7 +202,7 @@ def fmt_pct(v: float) -> str:
 # ─────────────────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("### :color[Garrison Financial Group]{foreground="+FOREST+"}")
-    st.caption("Monte Carlo Retirement Simulator")
+    st.caption(":color[Monte Carlo Retirement Simulator]{foreground="+FOREST_MID+"}")
     st.divider()
 
     st.subheader("Your Situation")
