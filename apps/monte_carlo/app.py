@@ -501,6 +501,20 @@ def alternate_rows(row):
         return [f'background-color: {CREAM_LIGHT}'] * len(row)
     else:
         return [f'background-color: {CREAM_DARK}'] * len(row)
+    
+def df_styler(df):
+    styled = df.style.set_table_styles([
+        {'selector': 'th.col_heading', 'props': [
+            ('background-color', FOREST_LIGHT),
+            ('color', CREAM_LIGHT),
+        ]}
+    ]).set_properties(**{
+        'color': FOREST_MID,
+        'border': '1px solid',
+        'border-color': FOREST_LIGHT,
+    }).apply(alternate_rows, axis=1)
+
+    return styled
 
 st.subheader("Key Statistics")
 stats_df = pd.DataFrame({
@@ -524,16 +538,7 @@ stats_df = pd.DataFrame({
     ],
 })
 
-stats_styled = stats_df.style.set_table_styles([
-        {'selector': 'th.col_heading', 'props': [
-            ('background-color', FOREST_LIGHT),
-            ('color', CREAM_LIGHT),
-        ]}
-    ]).set_properties(**{
-        'color': FOREST_MID,
-        'border': '1px solid',
-        'border-color': FOREST_LIGHT,
-    }).apply(alternate_rows, axis=1)
+stats_styled = df_styler(stats_df)
 
 st.table(stats_styled, hide_index=True)
 
@@ -565,16 +570,20 @@ with tab_age:
         for d in (-5, -3, -1, 0, 2, 5)
         if max(int(current_age) + 1, ra_base + d) < int(plan_to_age)
     })
-    rows: list[dict] = []
+    rows1: list[dict] = []
     for ra in ra_tests:
-        rows.append({
+        rows1.append({
             "Retirement Age"      : ra,
             "Yrs accumulating"    : ra - int(current_age),
             "Yrs in retirement"   : int(plan_to_age) - ra,
             "Success Rate"        : fmt_pct(_sens("retirement_age", ra)),
             ""                    : "◀ base" if ra == ra_base else "",
         })
-    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
+    rows1_styled = df_styler(rows1)
+
+    st.table(rows1_styled, hide_index=True)
+    # st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
 
 # ── Tab 2: Annual spending ────────────────────────────────────────────────────
 with tab_spend:
@@ -589,7 +598,10 @@ with tab_spend:
             "Success Rate"    : fmt_pct(_sens("annual_spending", v)),
             ""                : "◀ base" if d == 0.0 else "",
         })
-    st.dataframe(pd.DataFrame(rows2), use_container_width=True, hide_index=True)
+    rows2_styled = df_styler(rows2)
+
+    st.table(rows2_styled, hide_index=True)
+    # st.dataframe(pd.DataFrame(rows2), use_container_width=True, hide_index=True)
 
 # ── Tab 3: Annual contribution ────────────────────────────────────────────────
 with tab_contrib:
@@ -604,7 +616,10 @@ with tab_contrib:
             "Success Rate"        : fmt_pct(_sens("annual_contribution", v)),
             ""                    : "◀ base" if d == 0.0 else "",
         })
-    st.dataframe(pd.DataFrame(rows3), use_container_width=True, hide_index=True)
+    rows3_styled = df_styler(rows3)
+
+    st.table(rows3_styled, hide_index=True)
+    # st.dataframe(pd.DataFrame(rows3), use_container_width=True, hide_index=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Footer
