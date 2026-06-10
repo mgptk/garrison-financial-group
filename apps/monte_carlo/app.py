@@ -96,7 +96,7 @@ st.markdown(
     }}
     div.stButton > button:hover {{
         background-color: {CREAM_DARK};
-        color: {FOREST_LIGHT};
+        color: {FOREST_LIGHT} !important;
         border: 1px solid {FOREST_LIGHT};
     }}
     
@@ -301,17 +301,16 @@ with st.sidebar:
         bond_vol     = st.number_input(
             "Volatility (%/yr)", 0.5, 30.0, 7.0, 0.1, key="bv", format="%.1f"
         ) / 100
+        # Reproducible seed with one-click randomise
+        if "seed" not in st.session_state:
+            st.session_state["seed"] = 53
+        seed = int(st.number_input("Random seed", 0, 99_999, st.session_state["seed"]))
+        st.session_state["seed"] = seed
+        if st.button(":color[New random seed]{foreground="+CREAM_LIGHT+"}", use_container_width=True):
+            st.session_state["seed"] = int(np.random.randint(0, 99_999))
+            st.rerun()
 
     st.divider()
-
-    # Reproducible seed with one-click randomise
-    if "seed" not in st.session_state:
-        st.session_state["seed"] = 53
-    seed = int(st.number_input("Random seed", 0, 99_999, st.session_state["seed"]))
-    st.session_state["seed"] = seed
-    if st.button(":color[New random seed]{foreground="+CREAM_LIGHT+"}", use_container_width=True):
-        st.session_state["seed"] = int(np.random.randint(0, 99_999))
-        st.rerun()
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Input validation
