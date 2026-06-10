@@ -85,6 +85,9 @@ st.markdown(
     .stTabs [aria-selected="true"] {{
         color: {FOREST};
     }}
+    div[data-baseweb="tab-highlight"] {{
+        background-color: {FOREST};
+    }}
     
     /* ── misc ── */
     hr {{border-color:{CREAM_DARK};}}
