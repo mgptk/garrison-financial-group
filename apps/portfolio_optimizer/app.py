@@ -104,7 +104,7 @@ st.markdown(
     }}
 
     /* ── toggle ── */
-    [data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div:first-of-type {{
+    [data-testid="stCheckbox"] {{
         background-color: {FOREST};
     }}
 
