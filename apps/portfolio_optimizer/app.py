@@ -150,8 +150,8 @@ _CHART_BASE = dict(
     plot_bgcolor  = CREAM_LIGHT,
     font          = dict(color=FOREST, size=12),
     margin        = dict(l=60, r=30, t=55, b=50),
-    # xaxis         = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK, title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT)),
-    # yaxis         = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK, title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT)),
+    xaxis         = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK, title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT)),
+    yaxis         = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK, title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT)),
 )
 
 
@@ -566,8 +566,8 @@ with tab_ef:
         **_CHART_BASE,
         title       = dict(text="Efficient Frontier · Annualized Risk vs. Return",
                            font=dict(color=FOREST, size=15)),
-        xaxis       = dict(title="Annualized Volatility (%)", title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT)),
-        yaxis       = dict(title="Annualized VolatiReturnlity (%)", title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT)),
+        xaxis_title = "Annualized Volatility (%)",
+        yaxis_title = "Annualized Return (%)",
         height      = 500,
         legend      = dict(bgcolor=CREAM_LIGHT, bordercolor=FOREST, borderwidth=1,
                            font=dict(color=FOREST)),
