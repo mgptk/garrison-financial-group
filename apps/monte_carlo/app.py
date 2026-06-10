@@ -100,10 +100,7 @@ st.markdown(
     }}
 
     /* ── expanders ── */
-    [data-testid="stExpander"] summary svg {{
-        fill: {FOREST} !important;
-        color: {FOREST} !important;
-    }}
+    [data-testid="stIconMaterial"] {{color:{FOREST};}}
     [data-testid="stExpander"] summary:hover {{
         background-color: {FOREST_LIGHT};
     }}
