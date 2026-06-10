@@ -626,13 +626,13 @@ with tab_wt:
     ))
 
     fig_w.update_layout(
-        **_CHART_BASE,
         title      = dict(text=f"{opt_label} · Asset Allocation",
                           font=dict(color=FOREST, size=15)),
         xaxis_title = "Weight (%)",
         barmode    = "overlay",
         height     = max(320, n * 48 + 100),
         legend     = dict(bgcolor=CREAM_LIGHT, bordercolor=FOREST, borderwidth=1),
+        **_CHART_BASE
     )
     st.plotly_chart(fig_w, use_container_width=True)
 
@@ -703,12 +703,12 @@ with tab_risk:
         textfont      = dict(color=FOREST),
     ))
     fig_vol.update_layout(
-        **_CHART_BASE,
         title       = dict(text="Annualized Volatility — Assets vs. Portfolios",
                            font=dict(color=FOREST, size=15)),
         yaxis_title = "Ann. Volatility (%)",
         height      = 360,
         showlegend  = False,
+        **_CHART_BASE
     )
     st.plotly_chart(fig_vol, use_container_width=True)
 
@@ -742,10 +742,10 @@ with tab_corr:
         ),
     ))
     fig_corr.update_layout(
-        **_CHART_BASE,
         title  = dict(text="Asset Correlation Matrix · Monthly Log Returns",
                       font=dict(color=FOREST, size=15)),
         height = max(380, n * 55 + 120),
+        **_CHART_BASE
     )
     st.plotly_chart(fig_corr, use_container_width=True)
     st.caption(
@@ -810,7 +810,6 @@ with tab_hist:
 
     fig_h.add_hline(y=0, line_color=CREAM_DARK, line_width=1)
     fig_h.update_layout(
-        **_CHART_BASE,
         title       = dict(
             text=f"Cumulative Returns · {lookback_label} Lookback  ⚠ In-sample",
             font=dict(color=FOREST, size=15),
@@ -822,6 +821,7 @@ with tab_hist:
         legend      = dict(bgcolor=CREAM_LIGHT, bordercolor=FOREST, borderwidth=1,
                            font=dict(color=FOREST)),
         hovermode   = "x unified",
+        **_CHART_BASE
     )
     st.plotly_chart(fig_h, use_container_width=True)
     st.caption(
