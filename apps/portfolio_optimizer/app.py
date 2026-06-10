@@ -103,6 +103,11 @@ st.markdown(
         border: 1px solid {FOREST_LIGHT};
     }}
 
+    /* ── toggle ── */
+    [data-testid="stCheckbox"] input[type="checkbox"]:checked ~ div:first-of-type {{
+        background-color: {FOREST};
+    }}
+
     /* ── expanders ── */
     [data-testid="stIconMaterial"] {{color:{FOREST};}}
     [data-testid="stExpander"] summary:hover {{
