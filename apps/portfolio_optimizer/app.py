@@ -73,13 +73,13 @@ st.markdown(
         background-color: {RED};
     }}
 
-    /* ── number areas ── */
+    /* ── text areas ── */
     [data-testid="stTextArea"] textarea {{
         background-color: {FOREST};
-        color: {CREAM_DARK};
+        color: {CREAM_LIGHT};
     }}
     [data-testid="stTextArea"] textarea:focus {{
-        border-color: {FOREST_LIGHT};
+        border-color: {FOREST_LIGHT} !important;
     }}
 
     /* ── tabs ── */
@@ -107,6 +107,25 @@ st.markdown(
     [data-testid="stIconMaterial"] {{color:{FOREST};}}
     [data-testid="stExpander"] summary:hover {{
         background-color: {FOREST_LIGHT};
+    }}
+
+    /* ── selectboxes ── */
+    div[data-baseweb="select"] > div {{
+        background-color: {FOREST};
+        border-color: {FOREST_LIGHT} !important;
+        color: {CREAM_LIGHT};
+    }}
+
+    /* 2. Change the background color of the dropdown list options */
+    div[role="listbox"] ul {{
+        background-color: {FOREST_MID};
+        color: {CREAM_LIGHT};
+    }}
+    
+    /* 3. Change the hover background color for options inside the listbox */
+    div[role="listbox"] li:hover {{
+        background-color: {FOREST_LIGHT};
+        color: {CREAM_DARK};
     }}
     
     </style>
