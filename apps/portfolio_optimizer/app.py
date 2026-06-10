@@ -58,6 +58,48 @@ st.markdown(
     [data-testid="stMetricValue"] {{color:{FOREST};}}
     [data-testid="stMetricLabel"] {{color:#4a5c4e;}}
     hr {{border-color:{CREAM_DARK};}}
+
+    /* ── number inputs ── */
+    .stNumberInput div[data-baseweb="input"] > div {{
+        background-color: {FOREST};
+        border-color: {FOREST_LIGHT};
+    }}
+    .stNumberInput input {{color: {CREAM_LIGHT};}}
+    div.stNumberInput button {{
+        color: {CREAM_LIGHT}; /* Change icon color */
+        background-color: {FOREST_LIGHT}; /* Change button background color */
+    }}
+    div.stNumberInput button:hover {{
+        background-color: {RED};
+    }}
+
+    /* ── tabs ── */
+    .stTabs [data-baseweb="tab"] {{
+        color: {FOREST_LIGHT};
+    }}
+    .stTabs [aria-selected="true"] {{
+        color: {FOREST};
+    }}
+    div[data-baseweb="tab-highlight"] {{
+        background-color: {FOREST};
+    }}
+
+    /* ── buttons ── */
+    div.stButton > button {{
+        background-color: {FOREST};
+        color: {CREAM_LIGHT} !important;
+    }}
+    div.stButton > button:hover {{
+        background-color: {FOREST_LIGHT};
+        border: 1px solid {FOREST_LIGHT};
+    }}
+
+    /* ── expanders ── */
+    [data-testid="stIconMaterial"] {{color:{FOREST};}}
+    [data-testid="stExpander"] summary:hover {{
+        background-color: {FOREST_LIGHT};
+    }}
+    
     </style>
     """,
     unsafe_allow_html=True,
