@@ -49,7 +49,7 @@ st.markdown(
     [data-testid="stHeader"]           {{background-color:{CREAM};}}
     [data-testid="stSidebar"]          {{background-color:{CREAM_LIGHT};}}
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {{color:#4a5c4e;}}
-    h1 {{color:{FOREST}; font-family:'Georgia',serif; letter-spacing:0.02em;}}
+    h1 {{color:{CREAM_DARK}; font-family:'Georgia',serif; letter-spacing:0.02em;}}
     h2, h3, h4 {{color:{FOREST_MID};}}
     [data-testid="metric-container"] {{
         background:{CREAM_LIGHT}; border-radius:8px; padding:0.8rem 1rem;
@@ -124,8 +124,8 @@ _CHART_BASE = dict(
     plot_bgcolor  = CREAM_LIGHT,
     font          = dict(color=FOREST, size=12),
     margin        = dict(l=60, r=30, t=55, b=50),
-    xaxis         = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK),
-    yaxis         = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK),
+    xaxis         = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK, title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT)),
+    yaxis         = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK, title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT)),
 )
 
 
@@ -293,8 +293,8 @@ def max_drawdown(ret: pd.DataFrame, w: np.ndarray) -> float:
 # Sidebar
 # ─────────────────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### 🏛 Garrison Financial Group")
-    st.caption("Portfolio Optimizer")
+    st.markdown("### :color[Garrison Financial Group]{foreground="+FOREST+"}")
+    st.caption(":color[Portfolio Optimizer]{foreground="+FOREST_MID+"}")
     st.divider()
 
     # Preset buttons
@@ -316,7 +316,7 @@ with st.sidebar:
     )
     st.session_state["tickers_text"] = tickers_raw
 
-    st.subheader("Settings")
+    st.subheader(":color[Settings]{foreground="+FOREST+"}")
     lookback_label = st.selectbox("Lookback period", list(LOOKBACK_MAP.keys()), index=2)
     years          = LOOKBACK_MAP[lookback_label]
 
@@ -417,6 +417,31 @@ with st.spinner("Running optimisation…"):
 # Helpers
 # ─────────────────────────────────────────────────────────────────────────────
 P = lambda v: f"{v*100:.1f}%"     # proportion → "14.3%"   noqa: E731
+
+
+def alternate_rows(row):
+    if row.name % 2 == 0:
+        return [f'background-color: {CREAM_LIGHT}'] * len(row)
+    else:
+        return [f'background-color: {CREAM_DARK}'] * len(row)
+
+
+def df_styler(df):
+    return (
+        df.style
+        .set_table_styles([
+            {'selector': 'th.col_heading', 'props': [
+                ('background-color', FOREST_LIGHT),
+                ('color', CREAM_LIGHT),
+            ]}
+        ])
+        .set_properties(**{
+            'color': FOREST_MID,
+            'border': '1px solid',
+            'border-color': FOREST_LIGHT,
+        })
+        .apply(alternate_rows, axis=1)
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -583,7 +608,7 @@ with tab_wt:
         "Equal Weight":   [P(eq_w[0])] * n,
         "Δ (Opt − EW)":   [f"{(o - eq_w[0])*100:+.1f}pp" for o in opt_w],
     })
-    st.dataframe(wt_df, use_container_width=True, hide_index=True)
+    st.table(df_styler(wt_df), hide_index=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -603,7 +628,7 @@ with tab_risk:
             "Monthly CVaR 95%":   [P(opt_cvar), P(gmv_cvar), P(eq_cvar)],
             "Max Drawdown":       [P(opt_mdd), P(max_drawdown(ret, gmv_w)), P(eq_mdd)],
         })
-        st.dataframe(risk_df, use_container_width=True, hide_index=True)
+        st.table(df_styler(risk_df), hide_index=True)
         st.caption(
             "CVaR = average monthly loss in the worst 5% of months (historical). "
             "Max Drawdown = worst peak-to-trough decline over the full lookback."
@@ -625,7 +650,7 @@ with tab_risk:
                 "Sharpe":          f"{a_s:.2f}",
                 "CVaR (monthly)":  P(cvar_monthly(ret, w1)),
             })
-        st.dataframe(pd.DataFrame(asset_rows), use_container_width=True, hide_index=True)
+        st.table(df_styler(pd.DataFrame(asset_rows)), hide_index=True)
 
     # Volatility comparison bar chart
     st.subheader("Volatility Comparison")

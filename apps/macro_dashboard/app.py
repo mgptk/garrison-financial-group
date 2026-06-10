@@ -45,7 +45,7 @@ st.markdown(
     [data-testid="stHeader"]           {{background-color:{CREAM};}}
     [data-testid="stSidebar"]          {{background-color:{CREAM_LIGHT};}}
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {{color:#4a5c4e;}}
-    h1 {{color:{FOREST}; font-family:'Georgia',serif; letter-spacing:0.02em;}}
+    h1 {{color:{CREAM_DARK}; font-family:'Georgia',serif; letter-spacing:0.02em;}}
     h2, h3, h4 {{color:{FOREST_MID};}}
     [data-testid="metric-container"] {{
         background:{CREAM_LIGHT}; border-radius:8px; padding:0.8rem 1rem;
@@ -54,6 +54,27 @@ st.markdown(
     [data-testid="stMetricValue"] {{color:{FOREST};}}
     [data-testid="stMetricLabel"] {{color:#4a5c4e;}}
     hr {{border-color:{CREAM_DARK};}}
+
+    /* ── tabs ── */
+    .stTabs [data-baseweb="tab"] {{
+        color: {FOREST_LIGHT};
+    }}
+    .stTabs [aria-selected="true"] {{
+        color: {FOREST};
+    }}
+    div[data-baseweb="tab-highlight"] {{
+        background-color: {FOREST};
+    }}
+
+    /* ── buttons ── */
+    div.stButton > button {{
+        background-color: {FOREST};
+        color: {CREAM_LIGHT} !important;
+    }}
+    div.stButton > button:hover {{
+        background-color: {FOREST_LIGHT};
+        border: 1px solid {FOREST_LIGHT};
+    }}
     </style>
     """,
     unsafe_allow_html=True,
@@ -72,7 +93,7 @@ _CB = dict(
     hovermode     = "x unified",
 )
 # Reusable axis style dict
-_AX = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK, zerolinewidth=1)
+_AX = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK, zerolinewidth=1, title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT))
 
 LOOKBACK_MAP = {"2 yr": 2, "5 yr": 5, "10 yr": 10, "Max": None}
 
@@ -226,7 +247,7 @@ def _composite_html(n_triggered: int) -> str:
         f'<div style="text-align:center;background:{color}22;border:2px solid {color};'
         f'border-radius:12px;padding:1.4rem 1rem;margin-bottom:1.2rem;">'
         f'<div style="font-size:2.8rem;font-weight:700;color:{color};">{icon} {label}</div>'
-        f'<div style="font-size:0.95rem;color:#aaa;margin-top:0.3rem;">'
+        f'<div style="font-size:0.95rem;color:{FOREST_MID};margin-top:0.3rem;">'
         f'Recession Risk Composite — {n_triggered} of 3 signals triggered</div></div>'
     )
 
@@ -240,12 +261,12 @@ def _signal_card_html(
     return (
         f'<div style="background:{color}18;border:1px solid {color}55;border-radius:8px;'
         f'padding:1rem 1.1rem;height:100%;">'
-        f'<div style="font-size:0.75rem;color:#aaa;text-transform:uppercase;'
+        f'<div style="font-size:0.75rem;color:{FOREST_MID};text-transform:uppercase;'
         f'letter-spacing:0.08em;margin-bottom:0.25rem;">{label}</div>'
         f'<div style="font-size:1.5rem;font-weight:700;color:{color};">{icon} {status}</div>'
-        f'<div style="font-size:0.85rem;color:#ccc;margin-top:0.4rem;">'
+        f'<div style="font-size:0.85rem;color:{FOREST_MID};margin-top:0.4rem;">'
         f'<b>Current:</b> {value_str}<br><b>Threshold:</b> {threshold}</div>'
-        f'<div style="font-size:0.78rem;color:#888;margin-top:0.4rem;">{note}</div></div>'
+        f'<div style="font-size:0.78rem;color:{FOREST_LIGHT};margin-top:0.4rem;">{note}</div></div>'
     )
 
 
@@ -253,8 +274,8 @@ def _signal_card_html(
 # Sidebar
 # ─────────────────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### 🏛 Garrison Financial Group")
-    st.caption("Macro Dashboard")
+    st.markdown("### :color[Garrison Financial Group]{foreground="+FOREST+"}")
+    st.caption(":color[Macro Dashboard]{foreground="+FOREST_MID+"}")
     st.divider()
 
     lookback_label = st.selectbox(
