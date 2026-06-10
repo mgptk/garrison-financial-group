@@ -573,7 +573,6 @@ with tab_ef:
     _mark(eq_v,  eq_r,  "Equal Weight",  AMBER, "diamond")
 
     fig.update_layout(
-        **_CHART_BASE,
         title       = dict(text="Efficient Frontier · Annualized Risk vs. Return",
                            font=dict(color=FOREST, size=15)),
         xaxis_title = "Annualized Volatility (%)",
@@ -582,6 +581,7 @@ with tab_ef:
         legend      = dict(bgcolor=CREAM_LIGHT, bordercolor=FOREST, borderwidth=1,
                            font=dict(color=FOREST)),
         hovermode   = "closest",
+        **_CHART_BASE
     )
     st.plotly_chart(fig, use_container_width=True)
 
