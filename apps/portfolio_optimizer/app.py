@@ -620,7 +620,7 @@ with tab_wt:
         x             = [eq_w[0] * 100] * n,
         y             = [valid[i] for i in sorted_idx],
         orientation   = "h",
-        marker_color  = AMBER,
+        marker_color  = FOREST_LIGHT,
         opacity       = 0.45,
         name          = "Equal Weight",
     ))
@@ -631,7 +631,7 @@ with tab_wt:
         xaxis_title = "Weight (%)",
         barmode    = "overlay",
         height     = max(320, n * 48 + 100),
-        legend     = dict(bgcolor=CREAM_LIGHT, bordercolor=FOREST, borderwidth=1),
+        legend     = dict(bgcolor=CREAM_LIGHT, bordercolor=FOREST, borderwidth=1, font=dict(color=FOREST_MID)),
         **_CHART_BASE
     )
     st.plotly_chart(fig_w, use_container_width=True)
