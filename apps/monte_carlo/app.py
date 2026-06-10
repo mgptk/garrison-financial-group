@@ -495,6 +495,13 @@ st.plotly_chart(fig_hist, use_container_width=True)
 # ─────────────────────────────────────────────────────────────────────────────
 # 4. Key statistics table
 # ─────────────────────────────────────────────────────────────────────────────
+def alternate_rows(row):
+    # Determine if row index is even or odd
+    if row.name % 2 == 0:
+        return [f'background-color: {CREAM_LIGHT}'] * len(row)
+    else:
+        return [f'background-color: {CREAM_DARK}'] * len(row)
+
 st.subheader("Key Statistics")
 stats_df = pd.DataFrame({
     "Metric": [
@@ -517,41 +524,18 @@ stats_df = pd.DataFrame({
     ],
 })
 
-def alternate_rows(row):
-    # Determine if row index is even or odd
-    if row.name % 2 == 0:
-        return [f'background-color: {CREAM_DARK}'] * len(row)
-    else:
-        return [f'background-color: {CREAM_LIGHT}'] * len(row)
-
 stats_styled = stats_df.style.set_table_styles([
         {'selector': 'th.col_heading', 'props': [
             ('background-color', FOREST_LIGHT),
             ('color', CREAM_LIGHT),
         ]}
     ]).set_properties(**{
-        'background-color': CREAM_LIGHT,
         'color': FOREST_MID,
         'border': '1px solid',
         'border-color': FOREST_LIGHT,
     }).apply(alternate_rows, axis=1)
 
 st.table(stats_styled, hide_index=True)
-# st.dataframe(stats_styled, use_container_width=True, hide_index=True)
-
-# st.markdown(
-#     stats_df.style.set_table_styles([
-#         {'selector': 'th.col_heading', 'props': [
-#             ('background-color', FOREST_LIGHT),
-#             ('color', CREAM_LIGHT),
-#         ]}
-#     ]).set_properties(**{
-#         'background-color': CREAM_LIGHT,
-#         'color': FOREST_MID,
-#         'border-color': FOREST_LIGHT,
-#     }).to_html(),
-#     unsafe_allow_html=True
-# )
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 5. Sensitivity analysis
