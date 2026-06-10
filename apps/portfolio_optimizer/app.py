@@ -66,8 +66,8 @@ st.markdown(
     }}
     .stNumberInput input {{color: {CREAM_LIGHT};}}
     div.stNumberInput button {{
-        color: {CREAM_LIGHT}; /* Change icon color */
-        background-color: {FOREST_LIGHT}; /* Change button background color */
+        color: {CREAM_LIGHT};
+        background-color: {FOREST_LIGHT};
     }}
     div.stNumberInput button:hover {{
         background-color: {RED};
@@ -115,12 +115,11 @@ st.markdown(
         border-color: {FOREST_LIGHT} !important;
         color: {CREAM_LIGHT};
     }}
-    div[data-testid="stSelectboxVirtualDropdown"] ul li {{
+    div[data-testid="stSelectboxVirtualDropdown"]{{
         background-color: {FOREST_MID} !important;
         color: {CREAM_LIGHT} !important;
     }}
-    div[data-testid="stSelectboxVirtualDropdown"] ul li:hover,
-    div[data-testid="stSelectboxVirtualDropdown"] ul li[aria-selected="true"] {{
+    div[data-testid="stSelectboxVirtualDropdown"][aria-selected="true"] {{
         background-color: {FOREST_LIGHT} !important;
         color: {CREAM_DARK} !important;
     }}
