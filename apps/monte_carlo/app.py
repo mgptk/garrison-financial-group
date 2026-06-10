@@ -529,7 +529,7 @@ stats_styled = stats_df.style.set_table_styles([
         'border-color': FOREST_LIGHT,
     })
 
-st.dataframe(stats_styled, hide_index=True)
+st.table(stats_styled, hide_index=True)
 # st.dataframe(stats_styled, use_container_width=True, hide_index=True)
 
 # st.markdown(
