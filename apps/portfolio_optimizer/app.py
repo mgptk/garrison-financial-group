@@ -298,14 +298,14 @@ with st.sidebar:
     st.divider()
 
     # Preset buttons
-    st.caption("Quick presets")
+    st.caption(":color[Quick presets]{foreground="+FOREST+"}")
     if "tickers_text" not in st.session_state:
         st.session_state["tickers_text"] = PRESETS["Asset Classes"]
 
     cols = st.columns(3)
     for col, (label, val) in zip(cols, PRESETS.items()):
         with col:
-            if st.button(label, use_container_width=True, key=f"preset_{label}"):
+            if st.button(":color["+label+"]{foreground="+CREAM_LIGHT+"}", use_container_width=True, key=f"preset_{label}"):
                 st.session_state["tickers_text"] = val
                 st.rerun()
 
