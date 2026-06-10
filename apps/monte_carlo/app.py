@@ -102,6 +102,7 @@ st.markdown(
     /* ── expanders ── */
     [data-testid="stExpander"] summary svg {{
         fill: {FOREST} !important;
+        color: {FOREST} !important;
     }}
     [data-testid="stExpander"] summary:hover {{
         background-color: {FOREST_LIGHT};
@@ -290,7 +291,7 @@ with st.sidebar:
         0, 5_000_000, 0, 10_000, format="%d",
     )
 
-    with st.expander(":color[⚙️ Advanced Assumptions]{background="+CREAM_LIGHT+"}"):
+    with st.expander("⚙️ Advanced Assumptions"):
         inflation    = st.number_input(
             "Inflation (%/yr)", 0.0, 15.0, 2.5, 0.1, format="%.1f"
         ) / 100
