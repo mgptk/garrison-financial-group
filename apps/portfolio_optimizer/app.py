@@ -119,7 +119,7 @@ st.markdown(
         background-color: {FOREST_MID} !important;
         color: {CREAM_LIGHT} !important;
     }}
-    [data-testid="stTooltipHoverTarget"] {{
+    [data-testid="stTooltipHoverTarget"] ul li[aria-selected="true"]{{
         background-color: {FOREST_LIGHT} !important;
         color: {CREAM_DARK} !important;
     }}
