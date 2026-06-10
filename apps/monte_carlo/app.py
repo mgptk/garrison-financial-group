@@ -77,6 +77,14 @@ st.markdown(
     div.stNumberInput button:hover {{
         background-color: {RED};
     }}
+
+    /* ── tabs ── */
+    .stTabs [data-baseweb="tab"] {{
+        color: {FOREST_LIGHT};
+    }}
+    .stTabs [aria-selected="true"] {{
+        color: {FOREST};
+    }}
     
     /* ── misc ── */
     hr {{border-color:{CREAM_DARK};}}
