@@ -57,6 +57,10 @@ st.markdown(
     }}
     [data-testid="stMetricValue"] {{color:{FOREST};}}
     [data-testid="stMetricLabel"] {{color:#4a5c4e;}}
+    [data-testid="stMetricDelta"] {{
+        color:{FOREST};
+        background-color:{FOREST_LIGHT}
+    }}
     hr {{border-color:{CREAM_DARK};}}
 
     /* ── number inputs ── */
@@ -413,9 +417,9 @@ if len(ret) < 24:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Optimise
+# Optimize
 # ─────────────────────────────────────────────────────────────────────────────
-with st.spinner("Running optimisation…"):
+with st.spinner("Running optimization…"):
     gmv_w   = opt_min_vol(cov, allow_short, max_pos)
     opt_w   = gmv_w if gmv_mode else opt_max_sharpe(mu, cov, rf, allow_short, max_pos)
     eq_w    = np.ones(n) / n
@@ -493,11 +497,11 @@ st.divider()
 # Tabs
 # ─────────────────────────────────────────────────────────────────────────────
 tab_ef, tab_wt, tab_risk, tab_corr, tab_hist = st.tabs([
-    "📈  Efficient Frontier",
-    "⚖️  Optimal Weights",
-    "🛡️  Risk Analysis",
-    "🔗  Correlations",
-    "📅  Historical Returns",
+    "Efficient Frontier",
+    "Optimal Weights",
+    "Risk Analysis",
+    "Correlations",
+    "Historical Returns",
 ])
 
 
