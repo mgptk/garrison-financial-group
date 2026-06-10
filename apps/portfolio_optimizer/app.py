@@ -73,6 +73,15 @@ st.markdown(
         background-color: {RED};
     }}
 
+    /* ── number areas ── */
+    [data-testid="stTextArea"] textarea {{
+        background-color: {FOREST};
+        color: {CREAM_DARK};
+    }}
+    [data-testid="stTextArea"] textarea:focus {{
+        border-color: {FOREST_LIGHT};
+    }}
+
     /* ── tabs ── */
     .stTabs [data-baseweb="tab"] {{
         color: {FOREST_LIGHT};
