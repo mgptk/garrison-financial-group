@@ -92,7 +92,7 @@ st.markdown(
     /* ── buttons ── */
     div.stButton > button {{
         background-color: {FOREST};
-        color: {CREAM_LIGHT};
+        color: {CREAM_LIGHT} !important;
     }}
     div.stButton > button:hover {{
         background-color: {CREAM_DARK};
@@ -106,8 +106,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
-# [data-baseweb="input"] {{foreground-color:{CREAM};background-color:{FOREST};}}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Simulation constants
@@ -311,7 +309,7 @@ with st.sidebar:
         st.session_state["seed"] = 53
     seed = int(st.number_input("Random seed", 0, 99_999, st.session_state["seed"]))
     st.session_state["seed"] = seed
-    if st.button("New random seed", use_container_width=True):
+    if st.button(":color[New random seed]{foreground="+CREAM_LIGHT+"}", use_container_width=True):
         st.session_state["seed"] = int(np.random.randint(0, 99_999))
         st.rerun()
 
