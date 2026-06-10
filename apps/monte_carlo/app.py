@@ -438,7 +438,7 @@ fig_fan.add_vrect(
 fig_fan.add_vrect(
     x0=int(retirement_age), x1=int(plan_to_age),
     fillcolor="rgba(232,229,214,0.55)", layer="below", line_width=0,
-    annotation_text="Retirement", annotation_position="top left",
+    annotation_text="Retirement", annotation_position="top right",
     annotation_font=dict(color="#888", size=11),
 )
 
