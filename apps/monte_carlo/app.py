@@ -95,9 +95,16 @@ st.markdown(
         color: {CREAM_LIGHT} !important;
     }}
     div.stButton > button:hover {{
-        background-color: {CREAM_DARK};
-        color: {FOREST_LIGHT} !important;
+        background-color: {FOREST_LIGHT};
         border: 1px solid {FOREST_LIGHT};
+    }}
+
+    /* ── expanders ── */
+    [data-testid="stExpander"] summary svg {{
+        fill: {FOREST} !important;
+    }}
+    [data-testid="stExpander"] summary:hover {{
+        background-color: {FOREST_LIGHT};
     }}
     
     /* ── misc ── */
