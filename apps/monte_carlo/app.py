@@ -431,15 +431,15 @@ fig_fan.add_trace(go.Scatter(
 # Accumulation vs retirement phase shading
 fig_fan.add_vrect(
     x0=int(current_age), x1=int(retirement_age),
-    fillcolor=FOREST_LIGHT, layer="below", line_width=0,
+    fillcolor="rgba(202,198,176,0.45)", layer="below", line_width=0,
     annotation_text="Accumulation", annotation_position="top left",
-    annotation_font=dict(color="#888", size=12),
+    annotation_font=dict(color=FOREST_LIGHT, size=12),
 )
 fig_fan.add_vrect(
     x0=int(retirement_age), x1=int(plan_to_age),
-    fillcolor=FOREST_LIGHT, layer="below", line_width=0,
+    fillcolor="rgba(232,229,214,0.55)", layer="below", line_width=0,
     annotation_text="Retirement", annotation_position="top right",
-    annotation_font=dict(color="#888", size=12),
+    annotation_font=dict(color=FOREST_LIGHT, size=12),
 )
 
 # Retirement date vertical marker
