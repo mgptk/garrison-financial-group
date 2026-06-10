@@ -150,8 +150,18 @@ _CHART_BASE = dict(
     plot_bgcolor  = CREAM_LIGHT,
     font          = dict(color=FOREST, size=12),
     margin        = dict(l=60, r=30, t=55, b=50),
-    xaxis         = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK, title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT)),
-    yaxis         = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK, title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT)),
+    xaxis         = dict(
+        gridcolor=CREAM_DARK,
+        zerolinecolor=CREAM_DARK,
+        title=dict(font=dict(color=FOREST_MID)),
+        tickfont=dict(color=FOREST_LIGHT),
+    ),
+    yaxis         = dict(
+        gridcolor=CREAM_DARK,
+        zerolinecolor=CREAM_DARK,
+        title=dict(font=dict(color=FOREST_MID)),
+        tickfont=dict(color=FOREST_LIGHT),
+    ),
 )
 
 
