@@ -116,11 +116,9 @@ st.markdown(
         color: {CREAM_LIGHT};
     }}
     [data-testid="stSelectboxVirtualDropdown"]{{
-        background-color: {FOREST_MID} !important;
-        color: {CREAM_LIGHT} !important;
-    }}
-    [data-testid="stTooltipHoverTarget"] ul li[aria-selected="true"]{{
         background-color: {FOREST_LIGHT} !important;
+    }}
+    [data-testid="stTooltipHoverTarget"] {{
         color: {CREAM_DARK} !important;
     }}
     
