@@ -580,7 +580,7 @@ with tab_age:
             ""                    : "◀ base" if ra == ra_base else "",
         })
 
-    rows1_styled = df_styler(rows1)
+    rows1_styled = df_styler(pd.DataFrame(rows1))
 
     st.table(rows1_styled, hide_index=True)
     # st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
@@ -598,7 +598,7 @@ with tab_spend:
             "Success Rate"    : fmt_pct(_sens("annual_spending", v)),
             ""                : "◀ base" if d == 0.0 else "",
         })
-    rows2_styled = df_styler(rows2)
+    rows2_styled = df_styler(pd.DataFrame(rows2))
 
     st.table(rows2_styled, hide_index=True)
     # st.dataframe(pd.DataFrame(rows2), use_container_width=True, hide_index=True)
@@ -616,7 +616,7 @@ with tab_contrib:
             "Success Rate"        : fmt_pct(_sens("annual_contribution", v)),
             ""                    : "◀ base" if d == 0.0 else "",
         })
-    rows3_styled = df_styler(rows3)
+    rows3_styled = df_styler(pd.DataFrame(rows3))
 
     st.table(rows3_styled, hide_index=True)
     # st.dataframe(pd.DataFrame(rows3), use_container_width=True, hide_index=True)
