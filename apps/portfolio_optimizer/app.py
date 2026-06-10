@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+import streamlit_toggle as tog
 import yfinance as yf
 from scipy.optimize import minimize
 from sklearn.covariance import LedoitWolf
@@ -101,11 +102,6 @@ st.markdown(
     div.stButton > button:hover {{
         background-color: {FOREST_LIGHT};
         border: 1px solid {FOREST_LIGHT};
-    }}
-
-    /* ── toggle ── */
-    [data-testid="stCheckbox"] {{
-        background-color: {FOREST};
     }}
 
     /* ── expanders ── */
@@ -350,10 +346,20 @@ with st.sidebar:
     rf_pct = st.number_input("Risk-free rate (%/yr)", 0.0, 15.0, 4.5, 0.1, format="%.1f")
     rf     = rf_pct / 100.0
 
-    gmv_mode = st.toggle(
-        "GMV mode — minimise volatility only",
-        value=False,
-        help="Ignores expected return estimates. Optimal portfolio = Global Minimum Variance.",
+    # gmv_mode = st.toggle(
+    #     "GMV mode — minimise volatility only",
+    #     value=False,
+    #     help="Ignores expected return estimates. Optimal portfolio = Global Minimum Variance.",
+    # )
+
+    gmv_mode = tog.st_toggle_switch(
+        label="GMV mode — minimise volatility only",
+        key=None,
+        default_value=False,
+        label_after=False,
+        inactive_color=CREAM_DARK, # Color when turned off
+        active_color=CREAM_LIGHT,   # Dot color when turned on
+        track_color=FOREST     # Track color when turned on
     )
 
     with st.expander("⚙️ Advanced"):
