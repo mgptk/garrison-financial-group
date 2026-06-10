@@ -59,7 +59,7 @@ st.markdown(
     [data-testid="stMetricLabel"] {{color:#4a5c4e;}}
     [data-testid="stMetricDelta"] {{
         color:{FOREST};
-        background-color:{FOREST_LIGHT}
+        background-color:{CREAM_DARK}
     }}
     hr {{border-color:{CREAM_DARK};}}
 
@@ -195,19 +195,19 @@ def monthly_log_returns(prices: pd.DataFrame) -> pd.DataFrame:
 
 
 def lw_cov_annual(ret: pd.DataFrame) -> np.ndarray:
-    """Ledoit-Wolf shrinkage covariance (monthly input) → annualised (×12)."""
+    """Ledoit-Wolf shrinkage covariance (monthly input) → annualized (×12)."""
     return LedoitWolf().fit(ret.values).covariance_ * 12
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Portfolio mathematics  (all quantities annualised)
+# Portfolio mathematics  (all quantities annualized)
 # ─────────────────────────────────────────────────────────────────────────────
 
 def port_stats(
     w: np.ndarray,
-    mu: np.ndarray,   # annualised expected returns
-    cov: np.ndarray,  # annualised covariance matrix
-    rf: float,        # annualised risk-free rate
+    mu: np.ndarray,   # annualized expected returns
+    cov: np.ndarray,  # annualized covariance matrix
+    rf: float,        # annualized risk-free rate
 ) -> tuple[float, float, float]:
     """Return (ann_return, ann_vol, sharpe)."""
     r = float(w @ mu)
@@ -406,8 +406,8 @@ if len(valid) < 2:
 # ─────────────────────────────────────────────────────────────────────────────
 ret     = monthly_log_returns(prices)          # (T, n) monthly log returns
 n       = len(valid)
-mu      = ret.mean().values * 12               # annualised expected returns
-cov     = lw_cov_annual(ret)                   # annualised LW covariance
+mu      = ret.mean().values * 12               # annualized expected returns
+cov     = lw_cov_annual(ret)                   # annualized LW covariance
 
 if len(ret) < 24:
     st.warning(
@@ -564,10 +564,10 @@ with tab_ef:
 
     fig.update_layout(
         **_CHART_BASE,
-        title       = dict(text="Efficient Frontier · Annualised Risk vs. Return",
+        title       = dict(text="Efficient Frontier · Annualized Risk vs. Return",
                            font=dict(color=FOREST, size=15)),
-        xaxis_title = "Annualised Volatility (%)",
-        yaxis_title = "Annualised Return (%)",
+        xaxis       = dict(title="Annualized Volatility (%)", title_font=dict(color=FOREST_MID)),
+        yaxis       = dict(title="Annualized VolatiReturnlity (%)", title_font=dict(color=FOREST_MID)),
         height      = 500,
         legend      = dict(bgcolor=CREAM_LIGHT, bordercolor=FOREST, borderwidth=1,
                            font=dict(color=FOREST)),
@@ -694,7 +694,7 @@ with tab_risk:
     ))
     fig_vol.update_layout(
         **_CHART_BASE,
-        title       = dict(text="Annualised Volatility — Assets vs. Portfolios",
+        title       = dict(text="Annualized Volatility — Assets vs. Portfolios",
                            font=dict(color=FOREST, size=15)),
         yaxis_title = "Ann. Volatility (%)",
         height      = 360,
