@@ -115,17 +115,14 @@ st.markdown(
         border-color: {FOREST_LIGHT} !important;
         color: {CREAM_LIGHT};
     }}
-
-    /* 2. Change the background color of the dropdown list options */
-    div[role="listbox"] ul {{
-        background-color: {FOREST_MID};
-        color: {CREAM_LIGHT};
+    div[data-testid="stSelectboxVirtualDropdown"] ul li {{
+        background-color: {FOREST_MID} !important;
+        color: {CREAM_LIGHT} !important;
     }}
-    
-    /* 3. Change the hover background color for options inside the listbox */
-    div[role="listbox"] li:hover {{
-        background-color: {FOREST_LIGHT};
-        color: {CREAM_DARK};
+    div[data-testid="stSelectboxVirtualDropdown"] ul li:hover,
+    div[data-testid="stSelectboxVirtualDropdown"] ul li[aria-selected="true"] {{
+        background-color: {FOREST_LIGHT} !important;
+        color: {CREAM_DARK} !important;
     }}
     
     </style>
