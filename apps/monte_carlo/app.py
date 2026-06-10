@@ -88,6 +88,17 @@ st.markdown(
     div[data-baseweb="tab-highlight"] {{
         background-color: {FOREST};
     }}
+
+    /* ── buttons ── */
+    div.stButton > button {{
+        background-color: {FOREST};
+        color: {CREAM_LIGHT};
+    }}
+    div.stButton > button:hover {{
+        background-color: {CREAM_DARK};
+        color: {FOREST_LIGHT};
+        border: 1px solid {FOREST_LIGHT};
+    }}
     
     /* ── misc ── */
     hr {{border-color:{CREAM_DARK};}}
