@@ -53,6 +53,10 @@ st.markdown(
     }}
     [data-testid="stMetricValue"] {{color:{FOREST};}}
     [data-testid="stMetricLabel"] {{color:#4a5c4e;}}
+    [data-testid="stMetricDelta"] {{
+        color:{FOREST};
+        background-color:{CREAM_DARK}
+    }}
     hr {{border-color:{CREAM_DARK};}}
 
     /* ── tabs ── */
@@ -75,6 +79,20 @@ st.markdown(
         background-color: {FOREST_LIGHT};
         border: 1px solid {FOREST_LIGHT};
     }}
+
+    /* ── selectboxes ── */
+    div[data-baseweb="select"] > div {{
+        background-color: {FOREST};
+        border-color: {FOREST_LIGHT} !important;
+        color: {CREAM_LIGHT};
+    }}
+    [data-testid="stSelectboxVirtualDropdown"]{{
+        background-color: {FOREST_LIGHT} !important;
+    }}
+    [data-testid="stTooltipHoverTarget"] {{
+        color: {CREAM_DARK} !important;
+    }}
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -93,7 +111,13 @@ _CB = dict(
     hovermode     = "x unified",
 )
 # Reusable axis style dict
-_AX = dict(gridcolor=CREAM_DARK, zerolinecolor=CREAM_DARK, zerolinewidth=1, title_font=dict(color=FOREST_MID), tickfont=dict(color=FOREST_LIGHT))
+_AX = dict(
+    gridcolor=CREAM_DARK,
+    zerolinecolor=CREAM_DARK,
+    zerolinewidth=1,
+    tickfont=dict(color=FOREST_LIGHT),
+)
+_TITLE_FONT = dict(color=FOREST_MID)
 
 LOOKBACK_MAP = {"2 yr": 2, "5 yr": 5, "10 yr": 10, "Max": None}
 
@@ -287,11 +311,11 @@ with st.sidebar:
     show_rec = st.toggle("Show recession shading", value=True)
 
     st.divider()
-    if st.button("🔄  Refresh data", use_container_width=True):
+    if st.button(":color[Refresh data]{foreground="+CREAM_LIGHT+"}", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
 
-    st.caption("Data refreshes automatically every hour.")
+    st.caption(":color[Data refreshes automatically every hour.]{foreground="+FOREST_LIGHT+"}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -377,11 +401,11 @@ st.caption(
 # Tabs
 # ─────────────────────────────────────────────────────────────────────────────
 tab_ov, tab_yc, tab_lm, tab_inf, tab_ms = st.tabs([
-    "🔭  Overview",
-    "📉  Yield Curve",
-    "👷  Labor Market",
-    "📊  Inflation",
-    "💵  Money & Sentiment",
+    "Overview",
+    "Yield Curve",
+    "Labor Market",
+    "Inflation",
+    "Money & Sentiment",
 ])
 
 
@@ -537,8 +561,8 @@ with tab_yc:
             **_CB,
             title=dict(text="10-Year minus 2-Year Treasury Yield Spread",
                        font=dict(color=FOREST, size=15)),
-            xaxis=dict(**_AX, title="Date"),
-            yaxis=dict(**_AX, title="Spread (%)"),
+            xaxis=dict(**_AX, title=dict(text="Date", font=_TITLE_FONT)),
+            yaxis=dict(**_AX, title=dict(text="Spread (%)", font=_TITLE_FONT)),
             height=420,
         )
         st.plotly_chart(fig, use_container_width=True)
@@ -597,8 +621,8 @@ with tab_lm:
             height=380,
         )
         fig_lm.update_xaxes(**_AX)
-        fig_lm.update_yaxes(title_text="Unemployment Rate (%)", **_AX, secondary_y=False)
-        fig_lm.update_yaxes(title_text="Sahm Rule", **_AX, secondary_y=True,
+        fig_lm.update_yaxes(title_text="Unemployment Rate (%)", title_font=_TITLE_FONT, **_AX, secondary_y=False)
+        fig_lm.update_yaxes(title_text="Sahm Rule", title_font=_TITLE_FONT, **_AX, secondary_y=True,
                              showgrid=False)
         st.plotly_chart(fig_lm, use_container_width=True)
     else:
@@ -620,8 +644,8 @@ with tab_lm:
             **_CB,
             title=dict(text="Nonfarm Payrolls — Monthly Change (thousands)",
                        font=dict(color=FOREST, size=15)),
-            xaxis=dict(**_AX, title="Date"),
-            yaxis=dict(**_AX, title="Change (thousands)"),
+            xaxis=dict(**_AX, title=dict(text="Date", font=_TITLE_FONT)),
+            yaxis=dict(**_AX, title=dict(text="Change (thousands)", font=_TITLE_FONT)),
             height=340,
             showlegend=False,
         )
@@ -673,8 +697,8 @@ with tab_inf:
             **_CB,
             title=dict(text="CPI Inflation — Year-over-Year % Change",
                        font=dict(color=FOREST, size=15)),
-            xaxis=dict(**_AX, title="Date"),
-            yaxis=dict(**_AX, title="YoY % Change"),
+            xaxis=dict(**_AX, title=dict(text="Date", font=_TITLE_FONT)),
+            yaxis=dict(**_AX, title=dict(text="YoY % Change", font=_TITLE_FONT)),
             height=420,
         )
         st.plotly_chart(fig_inf, use_container_width=True)
@@ -708,8 +732,8 @@ with tab_ms:
             **_CB,
             title=dict(text="M2 Money Supply — Year-over-Year % Change",
                        font=dict(color=FOREST, size=15)),
-            xaxis=dict(**_AX, title="Date"),
-            yaxis=dict(**_AX, title="YoY % Change"),
+            xaxis=dict(**_AX, title=dict(text="Date", font=_TITLE_FONT)),
+            yaxis=dict(**_AX, title=dict(text="YoY % Change", font=_TITLE_FONT)),
             height=360,
             showlegend=False,
         )
@@ -765,8 +789,8 @@ with tab_ms:
             **_CB,
             title=dict(text="UMich Consumer Sentiment Index",
                        font=dict(color=FOREST, size=15)),
-            xaxis=dict(**_AX, title="Date"),
-            yaxis=dict(**_AX, title="Index Level"),
+            xaxis=dict(**_AX, title=dict(text="Date", font=_TITLE_FONT)),
+            yaxis=dict(**_AX, title=dict(text="Index Level", font=_TITLE_FONT)),
             height=360,
         )
         st.plotly_chart(fig_sent, use_container_width=True)
