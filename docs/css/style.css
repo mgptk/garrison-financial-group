@@ -357,6 +357,14 @@ hr {
 
 .app-bar-external:hover { color: var(--gold); }
 
+.nav-logo {
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+}
+
 /* --- Responsive --- */
 @media (max-width: 640px) {
   .nav-links { display: none; }
