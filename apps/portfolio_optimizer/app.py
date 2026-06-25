@@ -528,7 +528,7 @@ with tab_ef:
         mode = "markers",
         marker = dict(
             color    = scatter["sharpe"],
-            colorscale = "Greens",
+            colorscale = "algae",
             size     = 3,
             opacity  = 0.45,
             colorbar = dict(
@@ -537,6 +537,8 @@ with tab_ef:
                 len        = 0.55,
                 tickfont   = dict(size=10),
                 title_font = dict(size=11),
+                x=1.15,
+                y=0
             ),
         ),
         name         = "Random portfolios",
@@ -621,7 +623,10 @@ with tab_wt:
         y             = [valid[i] for i in sorted_idx],
         orientation   = "h",
         marker_color  = FOREST_LIGHT,
-        opacity       = 0.45,
+        text          = [f"{eq_w[i]*100:.1f}%" for i in sorted_idx],
+        textposition  = "outside",
+        textfont      = dict(color=FOREST, size=11),
+        opacity       = 1,
         name          = "Equal Weight",
     ))
 
@@ -692,7 +697,7 @@ with tab_risk:
     st.subheader("Volatility Comparison")
     vol_labels = valid + [opt_label, "Equal Weight"]
     vol_vals   = [np.sqrt(cov[i, i]) * 100 for i in range(n)] + [opt_v*100, eq_v*100]
-    vol_colors = [CREAM_DARK] * n + [FOREST, AMBER]
+    vol_colors = [CREAM_DARK] * n + [FOREST, FOREST_LIGHT]
 
     fig_vol = go.Figure(go.Bar(
         x             = vol_labels,
