@@ -537,7 +537,7 @@ with tab_ef:
                 len        = 0.55,
                 tickfont   = dict(size=10),
                 title_font = dict(size=11),
-                x=1.05,
+                x=1.01,
                 y=0.35
             ),
         ),
