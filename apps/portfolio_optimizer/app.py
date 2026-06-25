@@ -528,7 +528,7 @@ with tab_ef:
         mode = "markers",
         marker = dict(
             color    = scatter["sharpe"],
-            colorscale = "Viridis",
+            colorscale = "Greens",
             size     = 3,
             opacity  = 0.45,
             colorbar = dict(
@@ -570,7 +570,7 @@ with tab_ef:
     _mark(opt_v, opt_r, opt_label,       FOREST, "star")
     if not gmv_mode:
         _mark(gmv_v, gmv_r, "Min Volatility", FOREST_LIGHT, "circle")
-    _mark(eq_v,  eq_r,  "Equal Weight",  AMBER, "diamond")
+    _mark(eq_v,  eq_r,  "Equal Weight",  "red", "diamond")
 
     fig.update_layout(
         title       = dict(text="Efficient Frontier · Annualized Risk vs. Return",
@@ -629,7 +629,7 @@ with tab_wt:
         title      = dict(text=f"{opt_label} · Asset Allocation",
                           font=dict(color=FOREST, size=15)),
         xaxis_title = "Weight (%)",
-        barmode    = "overlay",
+        barmode    = "group",
         height     = max(320, n * 48 + 100),
         legend     = dict(bgcolor=CREAM_LIGHT, bordercolor=FOREST, borderwidth=1, font=dict(color=FOREST_MID)),
         **_CHART_BASE
