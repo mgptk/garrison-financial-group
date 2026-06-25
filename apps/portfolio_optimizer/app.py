@@ -537,8 +537,8 @@ with tab_ef:
                 len        = 0.55,
                 tickfont   = dict(size=10),
                 title_font = dict(size=11),
-                x=1,
-                y=0.25
+                x=1.05,
+                y=0.35
             ),
         ),
         name         = "Random portfolios",
