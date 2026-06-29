@@ -32,6 +32,9 @@ A portfolio of interactive financial planning and data science tools built with 
 
 **All three tools are live. The project is feature-complete for v1.**
 
+**Next milestone:** migrate app hosting from Streamlit Community Cloud to a self-hosted VPS to
+eliminate sleep-mode cold starts — see [`VPS_RUNBOOK.md`](./VPS_RUNBOOK.md).
+
 ---
 
 ## Repo Structure
@@ -92,6 +95,19 @@ garrison-financial-group/
 - A records on `@`: 185.199.108.153, 185.199.109.153, 185.199.110.153, 185.199.111.153
 - CNAME on `www`: `mgptk.github.io`
 - Cloudflare proxy: **DNS only** (grey cloud) — required for GitHub Pages HTTPS
+
+### Planned: VPS migration (not yet started)
+
+Streamlit Community Cloud's free tier sleeps apps after inactivity, causing a ~30-60s cold-start
+delay for visitors. The plan is to self-host all three apps on a Hetzner Cloud VPS instead, keeping
+the **same subdomain + iframe integration style** already in use (`docs/<name>.html` wrapper pages
+stay as-is; only the iframe `src` changes from `*.streamlit.app` to `*.gfg.finance`).
+
+**Full step-by-step runbook:** [`VPS_RUNBOOK.md`](./VPS_RUNBOOK.md) — provisioning, SSH/ufw/fail2ban
+hardening, one systemd service per app on localhost ports 8501-8503, nginx reverse proxy with
+websocket support per subdomain, Certbot SSL, Cloudflare DNS records, `FRED_API_KEY` secrets
+handling on the VPS, and a `deploy.sh` script for future updates. Landing page stays on GitHub
+Pages — only the three app subdomains move.
 
 ### Deploying a new app (established pattern)
 
